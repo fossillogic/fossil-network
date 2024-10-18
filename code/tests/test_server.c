@@ -11,16 +11,17 @@
  * Copyright (C) 2024 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
+
 #include <fossil/unittest/framework.h>  // Includes the Fossil Unit Test Framework
 #include <fossil/mockup/framework.h>    // Includes the Fossil Mockup Framework
 #include <fossil/unittest/assume.h>     // Includes the Fossil Assume Framework
-
 #include "fossil/network/framework.h"
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Squid Network Server Tests
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
+// Test server creation and destruction
 FOSSIL_TEST(test_server_create_and_destroy) {
     // Create a server socket on port 8080
     fossil_net_server_socket_t *server = fossil_net_create_server("127.0.0.1", 8080);
@@ -30,6 +31,7 @@ FOSSIL_TEST(test_server_create_and_destroy) {
     fossil_net_destroy_server(server);
 }
 
+// Test server accepting and disconnecting a client
 FOSSIL_TEST(test_server_accept_and_disconnect_client) {
     // Create the server socket
     fossil_net_server_socket_t *server = fossil_net_create_server("127.0.0.1", 8080);
@@ -46,13 +48,14 @@ FOSSIL_TEST(test_server_accept_and_disconnect_client) {
     ASSUME_ITS_EQUAL_I32(0, accept_status);  // Ensure the client was accepted
 
     // Disconnect the accepted client
-    fossil_net_close_client(&accepted_client);
+    fossil_net_destroy_client(&accepted_client); // Cleanup accepted client
 
     // Clean up client and server sockets
-    fossil_net_close_client(client);
+    fossil_net_destroy_client(client);
     fossil_net_destroy_server(server);
 }
 
+// Test server receive and send operations
 FOSSIL_TEST(test_server_receive_and_send) {
     // Create the server socket
     fossil_net_server_socket_t *server = fossil_net_create_server("127.0.0.1", 8080);
@@ -86,8 +89,8 @@ FOSSIL_TEST(test_server_receive_and_send) {
     ASSUME_ITS_EQUAL_I32(strlen(response), bytes_sent);  // Verify the response was sent
 
     // Clean up sockets
-    fossil_net_close_client(&accepted_client);
-    fossil_net_close_client(client);
+    fossil_net_destroy_client(&accepted_client);
+    fossil_net_destroy_client(client);
     fossil_net_destroy_server(server);
 }
 

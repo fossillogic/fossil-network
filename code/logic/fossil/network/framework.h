@@ -19,7 +19,6 @@ namespace fossil {
 #endif
 
 #include "server.h"
-#include "client.h"
 
 #ifdef __cplusplus
 } // namespae fossil
