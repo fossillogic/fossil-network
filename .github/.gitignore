@@ -1,0 +1,6 @@
+builddir
+.DS_Store
+subprojects/**
+.idea/**
+.gradle/**
+.vscode/**
