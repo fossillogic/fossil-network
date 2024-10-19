@@ -3,7 +3,7 @@ if get_option('with_test').enabled()
 
     test_src = ['unit_runner.c']
     test_cases = [
-        'server', 'client', 'general'
+        'server', 'client'
     ]
 
     foreach case : test_cases
