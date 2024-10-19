@@ -50,11 +50,7 @@ typedef struct {
 // Enum for protocol types
 typedef enum {
     FOSSIL_NET_PROTOCOL_TCP,
-    FOSSIL_NET_PROTOCOL_UDP,
-    FOSSIL_NET_PROTOCOL_HTTP,
-    FOSSIL_NET_PROTOCOL_HTTPS,
-    FOSSIL_NET_PROTOCOL_FTP,
-    FOSSIL_NET_PROTOCOL_SFTP
+    FOSSIL_NET_PROTOCOL_UDP
     // Future protocols can be added here
 } fossil_net_protocol_t;
 

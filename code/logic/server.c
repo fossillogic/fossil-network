@@ -43,10 +43,6 @@ fossil_net_server_socket_t* fossil_net_create_server(const char* ip, uint16_t po
     // Create socket based on protocol and IP version (IPv4 or IPv6)
     switch (protocol) {
         case FOSSIL_NET_PROTOCOL_TCP:
-        case FOSSIL_NET_PROTOCOL_HTTP:
-        case FOSSIL_NET_PROTOCOL_HTTPS:
-        case FOSSIL_NET_PROTOCOL_FTP:
-        case FOSSIL_NET_PROTOCOL_SFTP:
             socket_fd = is_ipv6 ? socket(AF_INET6, SOCK_STREAM, 0) : socket(AF_INET, SOCK_STREAM, 0);
             break;
 
