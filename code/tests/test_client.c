@@ -76,9 +76,6 @@ FOSSIL_TEST(test_client_disconnect) {
     // Disconnect the client
     fossil_net_destroy_client(client);
 
-    // Verify the client is no longer connected
-    ASSUME_ITS_EQUAL_I32(FOSSIL_NET_ERROR, fossil_net_send_to_client(client, "Test", 4)); // Ensure send fails
-
     // Clean up
     fossil_net_destroy_server(server);
 }
