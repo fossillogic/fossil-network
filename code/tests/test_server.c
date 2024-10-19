@@ -15,7 +15,7 @@
 #include <fossil/unittest/framework.h>  // Includes the Fossil Unit Test Framework
 #include <fossil/mockup/framework.h>    // Includes the Fossil Mockup Framework
 #include <fossil/unittest/assume.h>     // Includes the Fossil Assume Framework
-#include "fossil/network/framework.h"
+#include "fossil/network/framework.h"   // Includes the Fossil Network Framework
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Squid Network Server Tests
@@ -58,19 +58,19 @@ FOSSIL_TEST(test_server_receive_and_send) {
 
     // Client sends a message to the server
     const char *message = "Hello Server";
-    int bytes_sent = fossil_net_send_to_client(server, message, strlen(message));
+    int bytes_sent = fossil_net_send_to_client(client, message, strlen(message));
     ASSUME_ITS_EQUAL_I32(strlen(message), bytes_sent);  // Verify the message was sent
 
     // Server receives the message
     char buffer[128];
-    int bytes_received = fossil_net_receive_from_client(server, buffer, sizeof(buffer));
+    int bytes_received = fossil_net_receive_from_client(client, buffer, sizeof(buffer));
     ASSUME_ITS_MORE_THAN_I32(0, bytes_received);  // Ensure some bytes were received
     buffer[bytes_received] = '\0';  // Null-terminate the buffer
     ASSUME_ITS_EQUAL_CSTR(message, buffer);  // Verify the message content
 
     // Server sends a response to the client
     const char *response = "Hello Client";
-    bytes_sent = fossil_net_send_to_client(server, response, strlen(response));
+    bytes_sent = fossil_net_send_to_client(client, response, strlen(response));
     ASSUME_ITS_EQUAL_I32(strlen(response), bytes_sent);  // Verify the response was sent
 
     // Clean up sockets

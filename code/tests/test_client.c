@@ -27,9 +27,9 @@ FOSSIL_TEST(test_client_connect) {
     fossil_net_server_socket_t* server = fossil_net_create_server("127.0.0.1", 8080, FOSSIL_NET_PROTOCOL_TCP);
     ASSUME_NOT_CNULL(server);  // Ensure the server was created successfully
 
-    // Accept a client connection (simulating client connection)
+    // Simulate accepting a client connection
     fossil_net_client_socket_t* client = fossil_net_accept_client(server);
-    ASSUME_NOT_CNULL(client);  // Verify client creation
+    ASSUME_NOT_CNULL(client);  // Verify client connection
 
     // Clean up
     fossil_net_destroy_client(client);
@@ -44,17 +44,17 @@ FOSSIL_TEST(test_client_send_and_receive) {
 
     // Simulate client connection
     fossil_net_client_socket_t* client = fossil_net_accept_client(server);
-    ASSUME_NOT_CNULL(client);  // Verify client creation
+    ASSUME_NOT_CNULL(client);  // Verify client connection
 
-    // Send a message to the server
-    const char *message = "Hello Server";
-    int bytes_sent = fossil_net_send_to_client(server, message, strlen(message));
+    // Send a message to the client
+    const char* message = "Hello Server";
+    int bytes_sent = fossil_net_send_to_client(client, message, strlen(message));
     ASSUME_ITS_EQUAL_I32(strlen(message), bytes_sent);  // Verify the message was sent
 
-    // Prepare to receive a response from the server
+    // Prepare to receive a response
     char buffer[128];
-    int bytes_received = fossil_net_receive_from_client(server, buffer, sizeof(buffer));
-    ASSUME_ITS_MORE_THAN_I32(0, bytes_received);  // Ensure some bytes were received
+    int bytes_received = fossil_net_receive_from_client(client, buffer, sizeof(buffer));
+    ASSUME_ITS_MORE_THAN_I32(0, bytes_received);  // Ensure data was received
     buffer[bytes_received] = '\0';  // Null-terminate the buffer
     ASSUME_ITS_EQUAL_CSTR(message, buffer);  // Verify the response content
 
@@ -63,7 +63,7 @@ FOSSIL_TEST(test_client_send_and_receive) {
     fossil_net_destroy_server(server);
 }
 
-// Test client handling disconnection from the server
+// Test client disconnection handling
 FOSSIL_TEST(test_client_disconnect) {
     // Create the server socket
     fossil_net_server_socket_t* server = fossil_net_create_server("127.0.0.1", 8080, FOSSIL_NET_PROTOCOL_TCP);
@@ -71,13 +71,13 @@ FOSSIL_TEST(test_client_disconnect) {
 
     // Simulate client connection
     fossil_net_client_socket_t* client = fossil_net_accept_client(server);
-    ASSUME_NOT_CNULL(client);  // Verify client creation
+    ASSUME_NOT_CNULL(client);  // Verify client connection
 
     // Disconnect the client
     fossil_net_destroy_client(client);
 
     // Verify the client is no longer connected
-    ASSUME_ITS_EQUAL_I32(FOSSIL_NET_ERROR, fossil_net_send_to_client(server, "Test", 4)); // Ensure send fails
+    ASSUME_ITS_EQUAL_I32(FOSSIL_NET_ERROR, fossil_net_send_to_client(server, "Test", 4)); // Ensure sending fails
 
     // Clean up
     fossil_net_destroy_server(server);
@@ -91,19 +91,19 @@ FOSSIL_TEST(test_client_multiple_messages) {
 
     // Simulate client connection
     fossil_net_client_socket_t* client = fossil_net_accept_client(server);
-    ASSUME_NOT_CNULL(client);  // Verify client creation
+    ASSUME_NOT_CNULL(client);  // Verify client connection
 
-    const char *messages[] = { "Message 1", "Message 2", "Message 3" };
+    const char* messages[] = { "Message 1", "Message 2", "Message 3" };
     for (int i = 0; i < 3; ++i) {
-        int bytes_sent = fossil_net_send_to_client(server, messages[i], strlen(messages[i]));
+        int bytes_sent = fossil_net_send_to_client(client, messages[i], strlen(messages[i]));
         ASSUME_ITS_EQUAL_I32(strlen(messages[i]), bytes_sent);  // Verify each message was sent
 
-        // Prepare to receive a response from the server
+        // Prepare to receive a response
         char buffer[128];
-        int bytes_received = fossil_net_receive_from_client(server, buffer, sizeof(buffer));
-        ASSUME_ITS_MORE_THAN_I32(0, bytes_received);  // Ensure some bytes were received
+        int bytes_received = fossil_net_receive_from_client(client, buffer, sizeof(buffer));
+        ASSUME_ITS_MORE_THAN_I32(0, bytes_received);  // Ensure data was received
         buffer[bytes_received] = '\0';  // Null-terminate the buffer
-        ASSUME_ITS_EQUAL_CSTR(messages[i], buffer);  // Verify the expected response
+        ASSUME_ITS_EQUAL_CSTR(messages[i], buffer);  // Verify the response content
     }
 
     // Clean up
@@ -116,8 +116,8 @@ FOSSIL_TEST(test_client_multiple_messages) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
 FOSSIL_TEST_GROUP(c_network_client_tests) {
-    ADD_TEST(test_client_connect);         // Test for client connection
-    ADD_TEST(test_client_send_and_receive); // Test for sending and receiving messages
-    ADD_TEST(test_client_disconnect);       // Test for handling client disconnection
-    ADD_TEST(test_client_multiple_messages); // Test for multiple message handling
+    ADD_TEST(test_client_connect);           // Test client connection
+    ADD_TEST(test_client_send_and_receive);  // Test client sending/receiving messages
+    ADD_TEST(test_client_disconnect);        // Test client disconnection
+    ADD_TEST(test_client_multiple_messages); // Test handling multiple messages
 }
