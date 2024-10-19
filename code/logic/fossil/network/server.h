@@ -50,7 +50,11 @@ typedef struct {
 // Enum for protocol types
 typedef enum {
     FOSSIL_NET_PROTOCOL_TCP,
-    FOSSIL_NET_PROTOCOL_UDP
+    FOSSIL_NET_PROTOCOL_UDP,
+    FOSSIL_NET_PROTOCOL_HTTP,
+    FOSSIL_NET_PROTOCOL_HTTPS,
+    FOSSIL_NET_PROTOCOL_FTP,
+    FOSSIL_NET_PROTOCOL_SFTP
     // Future protocols can be added here
 } fossil_net_protocol_t;
 
@@ -95,7 +99,7 @@ fossil_net_client_socket_t* fossil_net_accept_client(fossil_net_server_socket_t*
  * @param length The length of the data to send.
  * @return The number of bytes sent on success, FOSSIL_NET_ERROR on failure.
  */
-int32_t fossil_net_send_to_client(fossil_net_server_socket_t* server_socket, const void* buffer, size_t length);
+int32_t fossil_net_send_to_client(fossil_net_client_socket_t* client_socket, const void* buffer, size_t length);
 
 /**
  * @brief Receives data from the connected client.
@@ -105,7 +109,7 @@ int32_t fossil_net_send_to_client(fossil_net_server_socket_t* server_socket, con
  * @param length The maximum number of bytes to receive.
  * @return The number of bytes received on success, FOSSIL_NET_ERROR on failure.
  */
-int32_t fossil_net_receive_from_client(fossil_net_server_socket_t* server_socket, void* buffer, size_t length);
+int32_t fossil_net_receive_from_client(fossil_net_client_socket_t* client_socket, void* buffer, size_t length);
 
 /**
  * @brief Closes the server socket.

@@ -30,19 +30,33 @@ static int set_socket_options(int socket_fd) {
 
 fossil_net_server_socket_t* fossil_net_create_server(const char* ip, uint16_t port, fossil_net_protocol_t protocol) {
     int socket_fd;
+    struct sockaddr_in server_addr;
+    struct sockaddr_in6 server_addr6;
+    int is_ipv6 = strchr(ip, ':') != NULL; // Detect if the IP is IPv6
+
     fossil_net_server_socket_t* server_socket = malloc(sizeof(fossil_net_server_socket_t));
     if (!server_socket) {
         perror("malloc");
         return NULL;
     }
 
-    // Create socket based on the protocol
-    if (protocol == FOSSIL_NET_PROTOCOL_TCP) {
-        socket_fd = socket(AF_INET, SOCK_STREAM, 0);
-    } else {
-        // Future protocols can be added here
-        free(server_socket);
-        return NULL; // Currently, only TCP is supported
+    // Create socket based on protocol and IP version (IPv4 or IPv6)
+    switch (protocol) {
+        case FOSSIL_NET_PROTOCOL_TCP:
+        case FOSSIL_NET_PROTOCOL_HTTP:
+        case FOSSIL_NET_PROTOCOL_HTTPS:
+        case FOSSIL_NET_PROTOCOL_FTP:
+        case FOSSIL_NET_PROTOCOL_SFTP:
+            socket_fd = is_ipv6 ? socket(AF_INET6, SOCK_STREAM, 0) : socket(AF_INET, SOCK_STREAM, 0);
+            break;
+
+        case FOSSIL_NET_PROTOCOL_UDP:
+            socket_fd = is_ipv6 ? socket(AF_INET6, SOCK_DGRAM, 0) : socket(AF_INET, SOCK_DGRAM, 0);
+            break;
+
+        default:
+            free(server_socket);
+            return NULL; // Unsupported protocol
     }
 
     if (socket_fd < 0) {
@@ -57,25 +71,44 @@ fossil_net_server_socket_t* fossil_net_create_server(const char* ip, uint16_t po
         return NULL;
     }
 
-    // Bind the socket to the specified IP address and port
-    struct sockaddr_in server_addr;
-    memset(&server_addr, 0, sizeof(server_addr));
-    server_addr.sin_family = AF_INET;
-    inet_pton(AF_INET, ip, &server_addr.sin_addr);
-    server_addr.sin_port = htons(port);
+    // Bind the socket to the specified IP and port (IPv4 or IPv6)
+    if (is_ipv6) {
+        memset(&server_addr6, 0, sizeof(server_addr6));
+        server_addr6.sin6_family = AF_INET6;
+        inet_pton(AF_INET6, ip, &server_addr6.sin6_addr);
+        server_addr6.sin6_port = htons(port);
 
-    if (bind(socket_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-        perror("bind");
-        close(socket_fd);
-        free(server_socket);
-        return NULL;
+        if (bind(socket_fd, (struct sockaddr*)&server_addr6, sizeof(server_addr6)) < 0) {
+            perror("bind");
+            close(socket_fd);
+            free(server_socket);
+            return NULL;
+        }
+    } else {
+        memset(&server_addr, 0, sizeof(server_addr));
+        server_addr.sin_family = AF_INET;
+        inet_pton(AF_INET, ip, &server_addr.sin_addr);
+        server_addr.sin_port = htons(port);
+
+        if (bind(socket_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+            perror("bind");
+            close(socket_fd);
+            free(server_socket);
+            return NULL;
+        }
     }
 
-    if (listen(socket_fd, SOMAXCONN) < 0) {
-        perror("listen");
-        close(socket_fd);
-        free(server_socket);
-        return NULL;
+    if (protocol == FOSSIL_NET_PROTOCOL_TCP || 
+        protocol == FOSSIL_NET_PROTOCOL_HTTP || 
+        protocol == FOSSIL_NET_PROTOCOL_HTTPS ||
+        protocol == FOSSIL_NET_PROTOCOL_FTP || 
+        protocol == FOSSIL_NET_PROTOCOL_SFTP) {
+        if (listen(socket_fd, SOMAXCONN) < 0) {
+            perror("listen");
+            close(socket_fd);
+            free(server_socket);
+            return NULL;
+        }
     }
 
     server_socket->socket_fd = socket_fd;
@@ -111,9 +144,9 @@ fossil_net_client_socket_t* fossil_net_accept_client(fossil_net_server_socket_t*
     return client_socket;
 }
 
-int32_t fossil_net_send_to_client(fossil_net_server_socket_t* server_socket, const void* buffer, size_t length) {
-    // Assumes that server_socket is already connected to a client
-    int bytes_sent = send(server_socket->socket_fd, buffer, length, 0);
+int32_t fossil_net_send_to_client(fossil_net_client_socket_t* client_socket, const void* buffer, size_t length) {
+    // Send data to the connected client
+    int bytes_sent = send(client_socket->socket_fd, buffer, length, 0);
     if (bytes_sent < 0) {
         perror("send");
         return FOSSIL_NET_ERROR;
@@ -121,9 +154,9 @@ int32_t fossil_net_send_to_client(fossil_net_server_socket_t* server_socket, con
     return bytes_sent;
 }
 
-int32_t fossil_net_receive_from_client(fossil_net_server_socket_t* server_socket, void* buffer, size_t length) {
-    // Assumes that server_socket is already connected to a client
-    int bytes_received = recv(server_socket->socket_fd, buffer, length, 0);
+int32_t fossil_net_receive_from_client(fossil_net_client_socket_t* client_socket, void* buffer, size_t length) {
+    // Receive data from the connected client
+    int bytes_received = recv(client_socket->socket_fd, buffer, length, 0);
     if (bytes_received < 0) {
         perror("recv");
         return FOSSIL_NET_ERROR;
@@ -189,7 +222,7 @@ void fossil_net_destroy_client(fossil_net_client_socket_t* client_socket) {
  * @brief Gets the IP address of the connected client.
  * 
  * @param client_socket The client socket to retrieve the IP address from.
- * @return The IP address as a string.
+ * @return The IP address as a string. Caller must free the returned string.
  */
 const char* fossil_net_get_client_ip(fossil_net_client_socket_t* client_socket) {
     if (client_socket) {
@@ -201,7 +234,6 @@ const char* fossil_net_get_client_ip(fossil_net_client_socket_t* client_socket) 
     }
     return NULL; // Return NULL if there's an error
 }
-
 
 /**
  * @brief Gets the port number of the connected client.
