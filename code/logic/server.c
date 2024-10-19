@@ -94,11 +94,7 @@ fossil_net_server_socket_t* fossil_net_create_server(const char* ip, uint16_t po
         }
     }
 
-    if (protocol == FOSSIL_NET_PROTOCOL_TCP || 
-        protocol == FOSSIL_NET_PROTOCOL_HTTP || 
-        protocol == FOSSIL_NET_PROTOCOL_HTTPS ||
-        protocol == FOSSIL_NET_PROTOCOL_FTP || 
-        protocol == FOSSIL_NET_PROTOCOL_SFTP) {
+    if (protocol == FOSSIL_NET_PROTOCOL_TCP || protocol == FOSSIL_NET_PROTOCOL_UDP) {
         if (listen(socket_fd, SOMAXCONN) < 0) {
             perror("listen");
             close(socket_fd);
