@@ -18,22 +18,6 @@
 #include <errno.h>
 #include <ctype.h>
 
-#ifdef _WIN32
-    // Always include this before <windows.h> or anything that drags it in
-    #include <winsock2.h>
-    #include <ws2tcpip.h>
-    #include <windows.h>
-    #include <iphlpapi.h>
-#else
-    #include <sys/types.h>
-    #include <sys/socket.h>
-    #include <netinet/in.h>
-    #include <arpa/inet.h>
-    #include <netdb.h>
-    #include <unistd.h>
-    #include <fcntl.h>
-#endif
-
 int fossil_strcasecmp(const char *s1, const char *s2) {
     if (!s1 && !s2) return 0;
     if (!s1) return -1;
