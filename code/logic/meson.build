@@ -8,13 +8,10 @@ else
     winsock_dep = []
 endif
 
-# Find OpenSSL dependencies
-openssl_dep = dependency('openssl', required: true)
-
 fossil_network_lib = static_library('fossil-network',
     files('network.c'),
     install: true,
-    dependencies: [cc.find_library('m', required: false), winsock_dep, openssl_dep],
+    dependencies: [cc.find_library('m', required: false), winsock_dep],
     include_directories: dir
 )
 
