@@ -16,12 +16,30 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
+#include <ctype.h>
 
 #ifdef _WIN32
 // Windows specifics
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #else
 #include <netdb.h>
 #endif
+
+int fossil_strcasecmp(const char *s1, const char *s2) {
+    if (!s1 && !s2) return 0;
+    if (!s1) return -1;
+    if (!s2) return 1;
+
+    while (*s1 && *s2) {
+        int c1 = tolower((unsigned char)*s1);
+        int c2 = tolower((unsigned char)*s2);
+        if (c1 != c2) return c1 - c2;
+        ++s1;
+        ++s2;
+    }
+    return (unsigned char)*s1 - (unsigned char)*s2;
+}
 
 // -----------------------------------------
 // Protocol lookup table
@@ -80,7 +98,7 @@ fossil_protocol_t fossil_network_socket_proto_from_name(const char *name) {
 #ifdef _WIN32
         if (_stricmp(name, p->name) == 0)
 #else
-        if (strcasecmp(name, p->name) == 0)
+        if (fossil_strcasecmp(name, p->name) == 0)
 #endif
             return p->proto;
     }
