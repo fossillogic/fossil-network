@@ -32,8 +32,7 @@ fossil_network_bot_t *fossil_network_bot_create(const char *host,
                                                 uint16_t port,
                                                 fossil_protocol_t proto,
                                                 fossil_bot_action_t action,
-                                                void *userdata)
-{
+                                                void *userdata) {
     fossil_network_bot_t *bot = calloc(1, sizeof(*bot));
     if (!bot) return NULL;
 
@@ -51,8 +50,7 @@ fossil_network_bot_t *fossil_network_bot_create(const char *host,
 // ------------------------------
 // Run bot (simple loop)
 // ------------------------------
-int fossil_network_bot_run(fossil_network_bot_t *bot)
-{
+int fossil_network_bot_run(fossil_network_bot_t *bot) {
     if (!bot || !bot->client || !bot->action)
         return -1;
 
@@ -70,8 +68,7 @@ int fossil_network_bot_run(fossil_network_bot_t *bot)
 // ------------------------------
 // Destroy bot
 // ------------------------------
-int fossil_network_bot_destroy(fossil_network_bot_t *bot)
-{
+int fossil_network_bot_destroy(fossil_network_bot_t *bot) {
     if (!bot) return -1;
 
     if (bot->client) {
