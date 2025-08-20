@@ -18,6 +18,36 @@
 #include <errno.h>
 #include <ctype.h>
 
+#ifdef _WIN32
+    #ifndef WIN32_LEAN_AND_MEAN
+    #define WIN32_LEAN_AND_MEAN
+    #endif
+    #ifndef NOMINMAX
+    #define NOMINMAX
+    #endif
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+    #include <windows.h>
+    #include <iphlpapi.h>
+    typedef SOCKET fossil_socket_fd_t;
+#else
+    #include <sys/types.h>
+    #include <sys/socket.h>
+    #include <netinet/in.h>
+    #include <arpa/inet.h>
+    #include <netdb.h>
+    #include <unistd.h>
+    #include <fcntl.h>
+    typedef int fossil_socket_fd_t;
+#endif
+
+struct {
+    fossil_socket_fd_t fd;
+    int family;
+    int type;
+    fossil_protocol_t proto;
+} fossil_network_socket_t;
+
 int fossil_strcasecmp(const char *s1, const char *s2) {
     if (!s1 && !s2) return 0;
     if (!s1) return -1;
