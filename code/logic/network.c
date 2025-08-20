@@ -12,7 +12,6 @@
  * -----------------------------------------------------------------------------
  */
 #include "fossil/network/network.h"
-#include "fossil_network_socket.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
