@@ -14,6 +14,8 @@
 #ifndef FOSSIL_NETWORK_FRAMEWORK_H
 #define FOSSIL_NETWORK_FRAMEWORK_H
 
+#include "broadcast.h"
+#include "multicast.h"
 #include "network.h"
 #include "server.h"
 #include "client.h"
