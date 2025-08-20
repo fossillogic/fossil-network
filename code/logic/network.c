@@ -64,7 +64,7 @@
     typedef int fossil_socket_fd_t;
 #endif
 
-struct fossil_network_socket_t {
+struct fossil_network_socket {
     fossil_socket_fd_t fd;
     int family;
     int type;
