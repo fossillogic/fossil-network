@@ -15,5 +15,9 @@
 #define FOSSIL_NETWORK_FRAMEWORK_H
 
 #include "network.h"
+#include "server.h"
+#include "client.h"
+#include "mail.h"
+#include "bot.h"
 
 #endif /* FOSSIL_NETWORK_FRAMEWORK_H */
