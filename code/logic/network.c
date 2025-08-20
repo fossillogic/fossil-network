@@ -18,6 +18,15 @@
 #include <errno.h>
 #include <ctype.h>
 
+#if defined(_WIN32) || defined(_WIN64)
+    #include <BaseTsd.h>
+    typedef SSIZE_T ssize_t;  // Windows equivalent
+#elif defined(__APPLE__) || defined(__MACH__) || defined(__unix__) || defined(__unix)
+    #include <sys/types.h>    // defines ssize_t
+#else
+    
+#endif
+
 #ifdef _WIN32
     #ifndef WIN32_LEAN_AND_MEAN
     #define WIN32_LEAN_AND_MEAN
@@ -29,7 +38,21 @@
     #include <ws2tcpip.h>
     #include <windows.h>
     #include <iphlpapi.h>
+
     typedef SOCKET fossil_socket_fd_t;
+
+    // ssize_t is POSIX; Windows lacks it
+    #if defined(_MSC_VER)
+        #include <BaseTsd.h>
+        typedef SSIZE_T ssize_t;
+    #elif defined(__MINGW32__)
+        // MinGW usually has ssize_t, but ensure fallback
+        #ifndef _SSIZE_T_DEFINED
+            typedef long ssize_t;
+            #define _SSIZE_T_DEFINED
+        #endif
+    #endif
+
 #else
     #include <sys/types.h>
     #include <sys/socket.h>
