@@ -17,29 +17,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#ifdef _WIN32
-    #ifndef WIN32_LEAN_AND_MEAN
-    #define WIN32_LEAN_AND_MEAN
-    #endif
-    #ifndef NOMINMAX
-    #define NOMINMAX
-    #endif
-    #include <winsock2.h>
-    #include <ws2tcpip.h>
-    #include <windows.h>
-    #include <iphlpapi.h>
-    typedef SOCKET fossil_socket_fd_t;
-#else
-    #include <sys/types.h>
-    #include <sys/socket.h>
-    #include <netinet/in.h>
-    #include <arpa/inet.h>
-    #include <netdb.h>
-    #include <unistd.h>
-    #include <fcntl.h>
-    typedef int fossil_socket_fd_t;
-#endif
-
 #ifdef __cplusplus
 extern "C"
 {
@@ -75,12 +52,7 @@ typedef enum {
 // ------------------------------
 // Socket structure
 // ------------------------------
-typedef struct {
-    fossil_socket_fd_t fd;
-    int family;
-    int type;
-    fossil_protocol_t proto;
-} fossil_network_socket_t;
+typedef struct fossil_network_socket_t;
 
 // ------------------------------
 // Init/Cleanup (Windows only)
