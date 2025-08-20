@@ -20,6 +20,7 @@
 #ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <windows.h.h>
 typedef SOCKET fossil_socket_fd_t;
 #else
 #include <sys/types.h>
