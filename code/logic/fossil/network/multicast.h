@@ -28,8 +28,11 @@ extern "C"
 // ------------------------------
 // Multicast socket structure
 // ------------------------------
-typedef struct fossil_network_multicast_t {
+typedef struct fossil_network_multicast_s {
     fossil_network_socket_t sock;
+    char     connected_group[64];   // enough for IPv4/IPv6 text; adjust if you need more
+    uint16_t connected_port;
+    bool     is_connected;
 } fossil_network_multicast_t;
 
 // ------------------------------
