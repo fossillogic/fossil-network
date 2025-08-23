@@ -68,18 +68,43 @@ fossil_network_multicast_t *fossil_network_multicast_create(const char *group,
 // ------------------------------
 // Send multicast message
 // ------------------------------
-ssize_t fossil_network_multicast_send(fossil_network_multicast_t *mc,
-                                      const char *msg,
-                                      size_t len,
-                                      const char *group,
-                                      uint16_t port) {
-    if (!mc) return -1;
+static int fossil_network_multicast_ensure_connected(
+    fossil_network_multicast_t* mc,
+    const char* group,
+    uint16_t port) {
+    if (!mc || !group) return -1;
 
-    return fossil_network_socket_sendto(&mc->sock,
-                                        msg,
-                                        len,
-                                        group,
-                                        port);
+    if (mc->is_connected &&
+        mc->connected_port == port &&
+        mc->connected_group[0] != '\0' &&
+        strcmp(mc->connected_group, group) == 0) {
+        return 0; // already connected to this group:port
+    }
+
+    // (Re)connect the UDP socket to set the default destination.
+    if (fossil_network_socket_connect(&mc->sock, group, port) != 0)
+        return -1;
+
+    // Cache destination
+    strncpy(mc->connected_group, group, sizeof(mc->connected_group) - 1);
+    mc->connected_group[sizeof(mc->connected_group) - 1] = '\0';
+    mc->connected_port = port;
+    mc->is_connected = true;
+    return 0;
+}
+
+ssize_t fossil_network_multicast_send(
+    fossil_network_multicast_t *mc,
+    const char *msg,
+    size_t len,
+    const char *group,
+    uint16_t port) {
+    if (!mc || !msg) return -1;
+
+    if (fossil_network_multicast_ensure_connected(mc, group, port) != 0)
+        return -1;
+
+    return fossil_network_socket_send(&mc->sock, msg, len);
 }
 
 // ------------------------------
