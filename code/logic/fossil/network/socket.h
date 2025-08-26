@@ -56,6 +56,15 @@ typedef enum {
 typedef struct fossil_network_socket fossil_network_socket_t;
 
 // ------------------------------
+// Poll structure
+// ------------------------------
+typedef struct {
+    fossil_network_socket_t *sock;
+    int events;   /**< Bitmask: 1=readable, 2=writeable, 4=error */
+    int revents;  /**< Output mask after polling */
+} fossil_network_pollfd_t;
+
+// ------------------------------
 /**
  * @brief Initialize the network socket subsystem (Windows only).
  *
@@ -193,6 +202,91 @@ ssize_t fossil_network_socket_recv(fossil_network_socket_t *sock,
 int fossil_network_socket_open(fossil_network_socket_t *sock,
                                const char *proto_name,
                                const char *address, uint16_t port);
+
+/**
+ * @brief Set an integer socket option.
+ *
+ * @param sock Pointer to a fossil_network_socket_t structure.
+ * @param level Protocol level (e.g., SOL_SOCKET, IPPROTO_TCP).
+ * @param option Option name (e.g., SO_REUSEADDR).
+ * @param value Integer value to set.
+ * @return 0 on success, non-zero on failure.
+ */
+int fossil_network_socket_set_option(fossil_network_socket_t *sock,
+                                     int level, int option, int value);
+
+/**
+ * @brief Get an integer socket option.
+ *
+ * @param sock Pointer to a fossil_network_socket_t structure.
+ * @param level Protocol level (e.g., SOL_SOCKET, IPPROTO_TCP).
+ * @param option Option name (e.g., SO_ERROR).
+ * @param value Output pointer for the integer value.
+ * @return 0 on success, non-zero on failure.
+ */
+int fossil_network_socket_get_option(fossil_network_socket_t *sock,
+                                     int level, int option, int *value);
+
+/**
+ * @brief Set the socket to blocking or non-blocking mode.
+ *
+ * @param sock Pointer to a fossil_network_socket_t structure.
+ * @param nonblock 1 to enable non-blocking, 0 to disable.
+ * @return 0 on success, non-zero on failure.
+ */
+int fossil_network_socket_set_nonblocking(fossil_network_socket_t *sock,
+                                          int nonblock);
+
+/**
+ * @brief Resolve a hostname to an IP address.
+ *
+ * @param hostname The hostname (e.g., "example.com").
+ * @param ip_buffer Buffer to store the resulting IP address string.
+ * @param ip_buffer_len Length of ip_buffer.
+ * @return 0 on success, non-zero on failure.
+ */
+int fossil_network_socket_resolve_hostname(const char *hostname,
+                                           char *ip_buffer,
+                                           size_t ip_buffer_len);
+
+/**
+ * @brief Get the local or remote address of a socket.
+ *
+ * @param sock Pointer to a fossil_network_socket_t structure.
+ * @param buffer Buffer to store the address string.
+ * @param buffer_len Length of buffer.
+ * @param remote 1 for remote address, 0 for local address.
+ * @return 0 on success, non-zero on failure.
+ */
+int fossil_network_socket_get_address(fossil_network_socket_t *sock,
+                                      char *buffer, size_t buffer_len,
+                                      int remote);
+
+/**
+ * @brief Get the last socket error code.
+ *
+ * @return Platform-specific error code.
+ */
+int fossil_network_socket_last_error(void);
+
+/**
+ * @brief Convert a socket error code to a human-readable string.
+ *
+ * @param err Error code.
+ * @return Constant string description of the error.
+ */
+const char *fossil_network_socket_error_string(int err);
+
+/**
+ * @brief Poll multiple sockets for readiness.
+ *
+ * @param fds Array of pollfd structures.
+ * @param nfds Number of sockets in fds.
+ * @param timeout Timeout in milliseconds (-1 for infinite).
+ * @return Number of ready sockets, 0 on timeout, or -1 on error.
+ */
+int fossil_network_socket_poll(fossil_network_pollfd_t *fds,
+                               size_t nfds, int timeout);
 
 #ifdef __cplusplus
 }
