@@ -104,11 +104,6 @@ typedef enum {
 } fossil_protocol_t;
 
 // ------------------------------
-// Socket structure
-// ------------------------------
-typedef struct fossil_network_socket fossil_network_socket_t;
-
-// ------------------------------
 /**
  * @brief Initialize the network socket subsystem (Windows only).
  *
