@@ -11,6 +11,9 @@
  * Copyright (C) 2024 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
+#define _POSIX_C_SOURCE 200112L
+#define _DEFAULT_SOURCE
+
 #include "fossil/network/socket.h"
 #include <string.h>
 #include <stdlib.h>
@@ -53,7 +56,6 @@
     #endif
 
 #else
-    #define _GNU_SOURCE
     #include <sys/types.h>
     #include <sys/socket.h>
     #include <sys/time.h>
