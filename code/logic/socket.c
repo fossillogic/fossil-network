@@ -60,6 +60,7 @@
     #include <netdb.h>
     #include <unistd.h>
     #include <fcntl.h>
+    #include <poll.h>
     typedef int fossil_socket_fd_t;
 #endif
 
