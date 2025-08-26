@@ -21,30 +21,51 @@ extern "C"
 {
 #endif
 
-// *****************************************************************************
-// Function prototypes
-// *****************************************************************************
-
-// ------------------------------
-// Bot type
-// ------------------------------
+/**
+ * @brief Opaque type representing a network bot.
+ */
 typedef struct fossil_network_bot_t fossil_network_bot_t;
 
-// Action callback (user-defined)
+/**
+ * @brief Callback type for bot actions.
+ *
+ * This function is called by the bot when an action is required.
+ * @param cli Pointer to the network client.
+ * @param userdata User-defined data passed to the callback.
+ */
 typedef void (*fossil_bot_action_t)(fossil_network_client_t *cli, void *userdata);
 
-// ------------------------------
-// Lifecycle
-// ------------------------------
+/**
+ * @brief Create a new network bot instance.
+ *
+ * @param host      The server hostname or IP address.
+ * @param port      The server port number.
+ * @param proto     The network protocol to use.
+ * @param action    The user-defined action callback.
+ * @param userdata  Pointer to user data for the callback.
+ * @return Pointer to the created bot instance, or NULL on failure.
+ */
 fossil_network_bot_t *fossil_network_bot_create(const char *host,
                                                 uint16_t port,
                                                 fossil_protocol_t proto,
                                                 fossil_bot_action_t action,
                                                 void *userdata);
 
+/**
+ * @brief Run the network bot event loop.
+ *
+ * This function starts the bot and processes events until completion or error.
+ * @param bot Pointer to the bot instance.
+ * @return 0 on success, or a negative error code on failure.
+ */
 int fossil_network_bot_run(fossil_network_bot_t *bot);
 
-// Cleanup
+/**
+ * @brief Destroy a network bot instance and release resources.
+ *
+ * @param bot Pointer to the bot instance to destroy.
+ * @return 0 on success, or a negative error code on failure.
+ */
 int fossil_network_bot_destroy(fossil_network_bot_t *bot);
 
 #ifdef __cplusplus

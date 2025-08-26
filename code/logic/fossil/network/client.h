@@ -14,7 +14,7 @@
 #ifndef FOSSIL_NETWORK_CLIENT_H
 #define FOSSIL_NETWORK_CLIENT_H
 
-#include "network.h"
+#include "socket.h"
 
 #ifdef __cplusplus
 extern "C"

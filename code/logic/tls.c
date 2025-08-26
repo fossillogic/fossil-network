@@ -11,7 +11,7 @@
  * Copyright (C) 2024 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include "fossil/network/tsl.h"
+#include "fossil/network/tls.h"
 #include <stdlib.h>
 #include <string.h>
 
