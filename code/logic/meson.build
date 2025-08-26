@@ -9,7 +9,7 @@ else
 endif
 
 fossil_network_lib = static_library('fossil-network',
-    files('socket.c', 'server.c', 'client.c', 'bot.c', 'tls.c'),
+    files('socket.c'),
     install: true,
     dependencies: [cc.find_library('m', required: false), winsock_dep],
     include_directories: dir
