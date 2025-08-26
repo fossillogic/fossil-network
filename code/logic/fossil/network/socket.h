@@ -64,13 +64,6 @@
     typedef int fossil_socket_fd_t;
 #endif
 
-typedef struct fossil_network_socket {
-    fossil_socket_fd_t fd;
-    int family;
-    int type;
-    fossil_protocol_t proto;
-} fossil_network_socket_t;
-
 #ifdef __cplusplus
 extern "C"
 {
@@ -102,6 +95,16 @@ typedef enum {
     FOSSIL_PROTO_LDAP,
     FOSSIL_PROTO_MQTT
 } fossil_protocol_t;
+
+// ------------------------------
+// Socket structure
+// ------------------------------
+typedef struct fossil_network_socket {
+    fossil_socket_fd_t fd;
+    int family;
+    int type;
+    fossil_protocol_t proto;
+} fossil_network_socket_t;
 
 // ------------------------------
 /**
