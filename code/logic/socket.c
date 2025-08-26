@@ -53,9 +53,7 @@
     #endif
 
 #else
-    #define _POSIX_C_SOURCE 200112L
-    #define _DEFAULT_SOURCE
-
+    #define _GNU_SOURCE
     #include <sys/types.h>
     #include <sys/socket.h>
     #include <sys/time.h>
