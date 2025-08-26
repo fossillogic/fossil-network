@@ -15,5 +15,11 @@
 #define FOSSIL_NETWORK_FRAMEWORK_H
 
 #include "socket.h"
+#include "http.h"
+#include "udp.h"
+#include "tcp.h"
+#include "dns.h"
+#include "tls.h"
+#include "ws.h"
 
 #endif /* FOSSIL_NETWORK_FRAMEWORK_H */
