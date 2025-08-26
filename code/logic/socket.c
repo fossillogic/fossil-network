@@ -18,6 +18,58 @@
 #include <errno.h>
 #include <ctype.h>
 
+#if defined(_WIN32) || defined(_WIN64)
+    #include <BaseTsd.h>
+    typedef SSIZE_T ssize_t;  // Windows equivalent
+#elif defined(__APPLE__) || defined(__MACH__) || defined(__unix__) || defined(__unix)
+    #include <sys/types.h>    // defines ssize_t
+#else    
+#endif
+
+#ifdef _WIN32
+    #ifndef WIN32_LEAN_AND_MEAN
+    #define WIN32_LEAN_AND_MEAN
+    #endif
+    #ifndef NOMINMAX
+    #define NOMINMAX
+    #endif
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+    #include <iphlpapi.h>
+    #include <windows.h>
+
+    typedef SOCKET fossil_socket_fd_t;
+
+    // ssize_t is POSIX; Windows lacks it
+    #if defined(_MSC_VER)
+        #include <BaseTsd.h>
+        typedef SSIZE_T ssize_t;
+    #elif defined(__MINGW32__)
+        // MinGW usually has ssize_t, but ensure fallback
+        #ifndef _SSIZE_T_DEFINED
+            typedef long ssize_t;
+            #define _SSIZE_T_DEFINED
+        #endif
+    #endif
+
+#else
+    #include <sys/types.h>
+    #include <sys/socket.h>
+    #include <netinet/in.h>
+    #include <arpa/inet.h>
+    #include <netdb.h>
+    #include <unistd.h>
+    #include <fcntl.h>
+    typedef int fossil_socket_fd_t;
+#endif
+
+struct fossil_network_socket {
+    fossil_socket_fd_t fd;
+    int family;
+    int type;
+    fossil_protocol_t proto;
+};
+
 
 int fossil_strcasecmp(const char *s1, const char *s2) {
     if (!s1 && !s2) return 0;
