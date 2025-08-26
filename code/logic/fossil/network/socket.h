@@ -288,6 +288,131 @@ const char *fossil_network_socket_error_string(int err);
 int fossil_network_socket_poll(fossil_network_pollfd_t *fds,
                                size_t nfds, int timeout);
 
+// ------------------------------
+// Socket Shutdown
+// ------------------------------
+/**
+ * @brief Shut down part or all of a network socket connection.
+ *
+ * Allows a socket to be gracefully closed in one direction (read, write)
+ * or both, depending on the 'how' argument.
+ *
+ * @param sock Pointer to a fossil_network_socket_t structure.
+ * @param how  Shutdown mode:
+ *             0 = disable receives,
+ *             1 = disable sends,
+ *             2 = disable both.
+ * @return 0 on success, non-zero on failure.
+ */
+int fossil_network_socket_shutdown(fossil_network_socket_t *sock, int how);
+
+// ------------------------------
+// Datagram Support
+// ------------------------------
+/**
+ * @brief Send a datagram (UDP or raw) to a specific address and port.
+ *
+ * @param sock Pointer to a fossil_network_socket_t structure.
+ * @param buf Pointer to the data buffer to send.
+ * @param len Number of bytes to send.
+ * @param address Destination address (IPv4 or IPv6 string).
+ * @param port Destination port number.
+ * @return Number of bytes sent, or -1 on error.
+ */
+ssize_t fossil_network_socket_sendto(fossil_network_socket_t *sock,
+                                     const void *buf, size_t len,
+                                     const char *address, uint16_t port);
+
+/**
+ * @brief Receive a datagram (UDP or raw) from a socket.
+ *
+ * @param sock Pointer to a fossil_network_socket_t structure.
+ * @param buf Buffer to store received data.
+ * @param len Maximum number of bytes to receive.
+ * @param address Output buffer for source address string.
+ * @param addr_len Length of the address buffer.
+ * @param port Output pointer for the source port.
+ * @return Number of bytes received, or -1 on error.
+ */
+ssize_t fossil_network_socket_recvfrom(fossil_network_socket_t *sock,
+                                       void *buf, size_t len,
+                                       char *address, size_t addr_len,
+                                       uint16_t *port);
+
+// ------------------------------
+// Timeout Helpers
+// ------------------------------
+/**
+ * @brief Set send and receive timeouts for a socket.
+ *
+ * When a timeout is set, send/recv operations will return an error
+ * if they block longer than the specified number of milliseconds.
+ *
+ * @param sock Pointer to a fossil_network_socket_t structure.
+ * @param send_ms Timeout for send operations in milliseconds (0 = no timeout).
+ * @param recv_ms Timeout for receive operations in milliseconds (0 = no timeout).
+ * @return 0 on success, non-zero on failure.
+ */
+int fossil_network_socket_set_timeout(fossil_network_socket_t *sock,
+                                      int send_ms, int recv_ms);
+
+// ------------------------------
+// Single-Socket Wait
+// ------------------------------
+/**
+ * @brief Wait for a socket to become readable or writable.
+ *
+ * This is a convenience wrapper around poll/select for one socket.
+ *
+ * @param sock Pointer to a fossil_network_socket_t structure.
+ * @param events Bitmask: 1=readable, 2=writeable.
+ * @param timeout Timeout in milliseconds (-1 for infinite).
+ * @return Number of events ready (>0), 0 on timeout, or -1 on error.
+ */
+int fossil_network_socket_wait(fossil_network_socket_t *sock,
+                               int events, int timeout);
+
+// ------------------------------
+// Address Helpers
+// ------------------------------
+/**
+ * @brief Check if a socket uses IPv6.
+ *
+ * @param sock Pointer to a fossil_network_socket_t structure.
+ * @return 1 if IPv6, 0 if IPv4, -1 on error.
+ */
+int fossil_network_socket_is_ipv6(fossil_network_socket_t *sock);
+
+// ------------------------------
+// Cross-Platform Error Codes
+// ------------------------------
+/**
+ * @brief Normalized cross-platform error codes for sockets.
+ *
+ * These map common platform-specific error values (errno/WSAGetLastError)
+ * into a consistent set used by Fossil sockets.
+ */
+typedef enum {
+    FOSSIL_NET_OK = 0,            /**< No error */
+    FOSSIL_NET_ERR_UNKNOWN = -1,  /**< Unmapped/unknown error */
+    FOSSIL_NET_ERR_WOULDBLOCK,    /**< Operation would block */
+    FOSSIL_NET_ERR_CONNRESET,     /**< Connection reset by peer */
+    FOSSIL_NET_ERR_TIMEDOUT,      /**< Operation timed out */
+    FOSSIL_NET_ERR_REFUSED,       /**< Connection refused */
+    FOSSIL_NET_ERR_ADDRINUSE,     /**< Address already in use */
+    FOSSIL_NET_ERR_NETDOWN,       /**< Network is down */
+    FOSSIL_NET_ERR_NETUNREACH,    /**< Network unreachable */
+    FOSSIL_NET_ERR_HOSTUNREACH    /**< Host unreachable */
+} fossil_network_error_t;
+
+/**
+ * @brief Translate the last platform-specific socket error
+ *        into a fossil_network_error_t code.
+ *
+ * @return Normalized fossil_network_error_t error code.
+ */
+fossil_network_error_t fossil_network_socket_translate_error(void);
+
 #ifdef __cplusplus
 }
 #include <stdexcept>
