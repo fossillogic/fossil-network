@@ -1,6 +1,6 @@
 # **Fossil Network by Fossil Logic**
 
-**Fossil Network** is a lightweight, cross-platform networking library written in pure C with zero external dependencies. Designed for high-performance applications, embedded systems, and multi-protocol communication, Fossil Network provides abstractions for TCP, UDP, multicast, TLS, and non-blocking I/O, making it easy to build reliable networked software while keeping the footprint minimal.
+**Fossil Network** is a lightweight, cross-platform sockets library written in pure C with zero external dependencies. Focused on efficient socket management, it enables high-performance applications and embedded systems to communicate over TCP, UDP, and multicast. With abstractions for non-blocking I/O and event-driven networking, Fossil Network simplifies building reliable, socket-based software while maintaining a minimal footprint.
 
 ### Key Features
 
@@ -18,9 +18,6 @@
 
 - **Lightweight and Efficient**  
   Optimized for minimal resource usage in embedded or resource-constrained environments.
-
-- **Secure Connections**  
-  Optional TLS support via OpenSSL for encrypted communication.
 
 - **Modular Design**  
   Easily integrated into existing projects or extended for custom protocols.
