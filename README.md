@@ -3,7 +3,6 @@
 **Fossil Network** is a lightweight, cross-platform sockets library written in pure C with zero external dependencies. Focused on efficient socket management, it enables high-performance applications and embedded systems to communicate over TCP, UDP, and multicast. With abstractions for non-blocking I/O and event-driven networking, Fossil Network simplifies building reliable, socket-based software while maintaining a minimal footprint.
 
 ### Key Features
-
 - **Cross-Platform Support**  
   Works seamlessly on Windows, macOS, Linux, and embedded platforms.
 
@@ -11,7 +10,7 @@
   Pure C implementation for maximum portability, auditability, and ease of integration.
 
 - **Multi-Protocol Support**  
-  TCP, UDP, multicast, and TLS-ready connections for versatile networking needs.
+  TCP, UDP, and multicast connections for versatile networking needs.
 
 - **Non-Blocking & Event-Driven I/O**  
   Supports timeouts, event callbacks, and efficient handling of multiple connections.
