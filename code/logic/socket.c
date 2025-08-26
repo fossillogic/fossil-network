@@ -295,3 +295,196 @@ int fossil_network_socket_open(fossil_network_socket_t *sock,
     }
     return 0;
 }
+
+// ---------------------------------------------------------
+// Socket Options
+// ---------------------------------------------------------
+int fossil_network_socket_set_option(fossil_network_socket_t *sock,
+                                     int level, int option, int value) {
+    if (!sock) return -1;
+
+    int ret;
+#if defined(_WIN32)
+    ret = setsockopt(sock->fd, level, option,
+                     (const char*)&value, sizeof(value));
+#else
+    ret = setsockopt(sock->fd, level, option,
+                     &value, sizeof(value));
+#endif
+    return (ret == 0) ? 0 : -1;
+}
+
+int fossil_network_socket_get_option(fossil_network_socket_t *sock,
+                                     int level, int option, int *value) {
+    if (!sock || !value) return -1;
+
+    socklen_t len = sizeof(*value);
+#if defined(_WIN32)
+    int ret = getsockopt(sock->fd, level, option,
+                         (char*)value, &len);
+#else
+    int ret = getsockopt(sock->fd, level, option,
+                         value, &len);
+#endif
+    return (ret == 0) ? 0 : -1;
+}
+
+// ---------------------------------------------------------
+// Blocking / Non-blocking
+// ---------------------------------------------------------
+int fossil_network_socket_set_nonblocking(fossil_network_socket_t *sock,
+                                          int nonblock) {
+    if (!sock) return -1;
+
+#if defined(_WIN32)
+    u_long mode = nonblock ? 1 : 0;
+    return (ioctlsocket(sock->fd, FIONBIO, &mode) == 0) ? 0 : -1;
+#else
+    int flags = fcntl(sock->fd, F_GETFL, 0);
+    if (flags < 0) return -1;
+    if (nonblock)
+        flags |= O_NONBLOCK;
+    else
+        flags &= ~O_NONBLOCK;
+    return (fcntl(sock->fd, F_SETFL, flags) == 0) ? 0 : -1;
+#endif
+}
+
+// ---------------------------------------------------------
+// Hostname Resolution
+// ---------------------------------------------------------
+int fossil_network_socket_resolve_hostname(const char *hostname,
+                                           char *ip_buffer,
+                                           size_t ip_buffer_len) {
+    if (!hostname || !ip_buffer) return -1;
+
+    struct addrinfo hints, *res = NULL;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;    // IPv4 or IPv6
+    hints.ai_socktype = SOCK_STREAM;
+
+    int rc = getaddrinfo(hostname, NULL, &hints, &res);
+    if (rc != 0 || !res) return -1;
+
+    void *addr = NULL;
+    if (res->ai_family == AF_INET) {
+        struct sockaddr_in *ipv4 = (struct sockaddr_in*)res->ai_addr;
+        addr = &(ipv4->sin_addr);
+    } else if (res->ai_family == AF_INET6) {
+        struct sockaddr_in6 *ipv6 = (struct sockaddr_in6*)res->ai_addr;
+        addr = &(ipv6->sin6_addr);
+    }
+
+    if (!addr) {
+        freeaddrinfo(res);
+        return -1;
+    }
+
+    const char *ntop = inet_ntop(res->ai_family, addr,
+                                 ip_buffer, (socklen_t)ip_buffer_len);
+    freeaddrinfo(res);
+    return (ntop != NULL) ? 0 : -1;
+}
+
+// ---------------------------------------------------------
+// Local/Remote Address
+// ---------------------------------------------------------
+int fossil_network_socket_get_address(fossil_network_socket_t *sock,
+                                      char *buffer, size_t buffer_len,
+                                      int remote) {
+    if (!sock || !buffer) return -1;
+
+    struct sockaddr_storage addr;
+    socklen_t addr_len = sizeof(addr);
+    int rc = remote
+        ? getpeername(sock->fd, (struct sockaddr*)&addr, &addr_len)
+        : getsockname(sock->fd, (struct sockaddr*)&addr, &addr_len);
+
+    if (rc != 0) return -1;
+
+    void *raw_addr = NULL;
+    int family = ((struct sockaddr*)&addr)->sa_family;
+
+    if (family == AF_INET) {
+        raw_addr = &(((struct sockaddr_in*)&addr)->sin_addr);
+    } else if (family == AF_INET6) {
+        raw_addr = &(((struct sockaddr_in6*)&addr)->sin6_addr);
+    } else {
+        return -1;
+    }
+
+    return (inet_ntop(family, raw_addr, buffer, (socklen_t)buffer_len) != NULL)
+           ? 0 : -1;
+}
+
+// ---------------------------------------------------------
+// Error Handling
+// ---------------------------------------------------------
+int fossil_network_socket_last_error(void) {
+#if defined(_WIN32)
+    return WSAGetLastError();
+#else
+    return errno;
+#endif
+}
+
+const char *fossil_network_socket_error_string(int err) {
+#if defined(_WIN32)
+    static char msg[256];
+    FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM |
+                   FORMAT_MESSAGE_IGNORE_INSERTS,
+                   NULL, err,
+                   MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                   msg, sizeof(msg), NULL);
+    return msg;
+#else
+    return strerror(err);
+#endif
+}
+
+// ---------------------------------------------------------
+// Poll Support
+// ---------------------------------------------------------
+int fossil_network_socket_poll(fossil_network_pollfd_t *fds,
+                               size_t nfds, int timeout) {
+    if (!fds || nfds == 0) return -1;
+
+#if defined(_WIN32)
+    // Map to WSAPOLLFD
+    WSAPOLLFD *wsa_fds = (WSAPOLLFD*)calloc(nfds, sizeof(WSAPOLLFD));
+    if (!wsa_fds) return -1;
+
+    for (size_t i = 0; i < nfds; i++) {
+        wsa_fds[i].fd = fds[i].sock->fd;
+        wsa_fds[i].events = fds[i].events;
+    }
+
+    int ret = WSAPoll(wsa_fds, (ULONG)nfds, timeout);
+
+    if (ret >= 0) {
+        for (size_t i = 0; i < nfds; i++) {
+            fds[i].revents = wsa_fds[i].revents;
+        }
+    }
+    free(wsa_fds);
+    return ret;
+#else
+    struct pollfd *pfd = (struct pollfd*)calloc(nfds, sizeof(struct pollfd));
+    if (!pfd) return -1;
+
+    for (size_t i = 0; i < nfds; i++) {
+        pfd[i].fd = fds[i].sock->fd;
+        pfd[i].events = fds[i].events;
+    }
+
+    int ret = poll(pfd, nfds, timeout);
+
+    if (ret >= 0) {
+        for (size_t i = 0; i < nfds; i++) {
+            fds[i].revents = pfd[i].revents;
+        }
+    }
+    free(pfd);
+    return ret;
+#endif
+}
