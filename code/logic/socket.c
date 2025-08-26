@@ -488,3 +488,195 @@ int fossil_network_socket_poll(fossil_network_pollfd_t *fds,
     return ret;
 #endif
 }
+
+// ------------------------------
+// Socket Shutdown
+// ------------------------------
+int fossil_network_socket_shutdown(fossil_network_socket_t *sock, int how) {
+    if (!sock) return -1;
+
+#if defined(_WIN32)
+    return (shutdown(sock->fd, how) == 0) ? 0 : -1;
+#else
+    return (shutdown(sock->fd, how) == 0) ? 0 : -1;
+#endif
+}
+
+// ------------------------------
+// Datagram Support
+// ------------------------------
+ssize_t fossil_network_socket_sendto(fossil_network_socket_t *sock,
+                                     const void *buf, size_t len,
+                                     const char *address, uint16_t port) {
+    if (!sock || !buf || !address) return -1;
+
+    struct addrinfo hints, *res = NULL;
+    char port_str[16];
+    snprintf(port_str, sizeof(port_str), "%u", port);
+
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = sock->family;
+    hints.ai_socktype = SOCK_DGRAM;
+
+    if (getaddrinfo(address, port_str, &hints, &res) != 0 || !res) {
+        return -1;
+    }
+
+    ssize_t sent = sendto(sock->fd, (const char*)buf, (int)len, 0,
+                          res->ai_addr, (int)res->ai_addrlen);
+
+    freeaddrinfo(res);
+    return sent;
+}
+
+ssize_t fossil_network_socket_recvfrom(fossil_network_socket_t *sock,
+                                       void *buf, size_t len,
+                                       char *address, size_t addr_len,
+                                       uint16_t *port) {
+    if (!sock || !buf) return -1;
+
+    struct sockaddr_storage src_addr;
+    socklen_t src_len = sizeof(src_addr);
+
+    ssize_t recvd = recvfrom(sock->fd, (char*)buf, (int)len, 0,
+                             (struct sockaddr*)&src_addr, &src_len);
+    if (recvd < 0) return -1;
+
+    if (address) {
+        void *raw_addr = NULL;
+        if (src_addr.ss_family == AF_INET) {
+            struct sockaddr_in *sin = (struct sockaddr_in*)&src_addr;
+            raw_addr = &sin->sin_addr;
+            if (port) *port = ntohs(sin->sin_port);
+        } else if (src_addr.ss_family == AF_INET6) {
+            struct sockaddr_in6 *sin6 = (struct sockaddr_in6*)&src_addr;
+            raw_addr = &sin6->sin6_addr;
+            if (port) *port = ntohs(sin6->sin6_port);
+        }
+        if (raw_addr) {
+            inet_ntop(src_addr.ss_family, raw_addr,
+                      address, (socklen_t)addr_len);
+        }
+    }
+
+    return recvd;
+}
+
+// ------------------------------
+// Timeout Helpers
+// ------------------------------
+int fossil_network_socket_set_timeout(fossil_network_socket_t *sock,
+                                      int send_ms, int recv_ms) {
+    if (!sock) return -1;
+
+#if defined(_WIN32)
+    DWORD s = (send_ms > 0) ? (DWORD)send_ms : 0;
+    DWORD r = (recv_ms > 0) ? (DWORD)recv_ms : 0;
+    if (send_ms > 0 &&
+        setsockopt(sock->fd, SOL_SOCKET, SO_SNDTIMEO,
+                   (const char*)&s, sizeof(s)) != 0)
+        return -1;
+    if (recv_ms > 0 &&
+        setsockopt(sock->fd, SOL_SOCKET, SO_RCVTIMEO,
+                   (const char*)&r, sizeof(r)) != 0)
+        return -1;
+#else
+    struct timeval tv;
+    if (send_ms > 0) {
+        tv.tv_sec = send_ms / 1000;
+        tv.tv_usec = (send_ms % 1000) * 1000;
+        if (setsockopt(sock->fd, SOL_SOCKET, SO_SNDTIMEO,
+                       &tv, sizeof(tv)) != 0)
+            return -1;
+    }
+    if (recv_ms > 0) {
+        tv.tv_sec = recv_ms / 1000;
+        tv.tv_usec = (recv_ms % 1000) * 1000;
+        if (setsockopt(sock->fd, SOL_SOCKET, SO_RCVTIMEO,
+                       &tv, sizeof(tv)) != 0)
+            return -1;
+    }
+#endif
+    return 0;
+}
+
+// ------------------------------
+// Single-Socket Wait
+// ------------------------------
+int fossil_network_socket_wait(fossil_network_socket_t *sock,
+                               int events, int timeout) {
+    if (!sock) return -1;
+
+#if defined(_WIN32)
+    WSAPOLLFD pfd;
+    pfd.fd = sock->fd;
+    pfd.events = 0;
+    if (events & 1) pfd.events |= POLLRDNORM; // readable
+    if (events & 2) pfd.events |= POLLWRNORM; // writable
+    pfd.revents = 0;
+
+    int ret = WSAPoll(&pfd, 1, timeout);
+    if (ret <= 0) return ret;
+    int ready = 0;
+    if (pfd.revents & (POLLRDNORM | POLLIN)) ready |= 1;
+    if (pfd.revents & (POLLWRNORM | POLLOUT)) ready |= 2;
+    return ready;
+#else
+    struct pollfd pfd;
+    pfd.fd = sock->fd;
+    pfd.events = 0;
+    if (events & 1) pfd.events |= POLLIN;
+    if (events & 2) pfd.events |= POLLOUT;
+    pfd.revents = 0;
+
+    int ret = poll(&pfd, 1, timeout);
+    if (ret <= 0) return ret;
+    int ready = 0;
+    if (pfd.revents & POLLIN) ready |= 1;
+    if (pfd.revents & POLLOUT) ready |= 2;
+    return ready;
+#endif
+}
+
+// ------------------------------
+// Address Helpers
+// ------------------------------
+int fossil_network_socket_is_ipv6(fossil_network_socket_t *sock) {
+    if (!sock) return -1;
+    if (sock->family == AF_INET6) return 1;
+    if (sock->family == AF_INET) return 0;
+    return -1;
+}
+
+// ------------------------------
+// Error Translation
+// ------------------------------
+fossil_network_error_t fossil_network_socket_translate_error(void) {
+    int err = fossil_network_socket_last_error();
+
+#if defined(_WIN32)
+    switch (err) {
+        case WSAEWOULDBLOCK: return FOSSIL_NET_ERR_WOULDBLOCK;
+        case WSAECONNRESET:  return FOSSIL_NET_ERR_CONNRESET;
+        case WSAETIMEDOUT:   return FOSSIL_NET_ERR_TIMEDOUT;
+        case WSAECONNREFUSED:return FOSSIL_NET_ERR_REFUSED;
+        case WSAEADDRINUSE:  return FOSSIL_NET_ERR_ADDRINUSE;
+        case WSAENETDOWN:    return FOSSIL_NET_ERR_NETDOWN;
+        case WSAENETUNREACH: return FOSSIL_NET_ERR_NETUNREACH;
+        case WSAEHOSTUNREACH:return FOSSIL_NET_ERR_HOSTUNREACH;
+        default:             return FOSSIL_NET_ERR_UNKNOWN;
+    }
+#else
+    switch (err) {
+        case EWOULDBLOCK: return FOSSIL_NET_ERR_WOULDBLOCK;
+        case ECONNRESET:  return FOSSIL_NET_ERR_CONNRESET;
+        case ETIMEDOUT:   return FOSSIL_NET_ERR_TIMEDOUT;
+        case ECONNREFUSED:return FOSSIL_NET_ERR_REFUSED;
+        case EADDRINUSE:  return FOSSIL_NET_ERR_ADDRINUSE;
+        case ENETDOWN:    return FOSSIL_NET_ERR_NETDOWN;
+        case ENETUNREACH: return FOSSIL_NET_ERR_NETUNREACH;
+        case EHOSTUNREACH:return FOSSIL_NET_ERR_HOSTUNREACH;
+        default:          return FOSSIL_NET_ERR_UNKNOWN;
+    }
+#endif
+}
