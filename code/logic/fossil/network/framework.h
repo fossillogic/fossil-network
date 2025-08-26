@@ -14,7 +14,11 @@
 #ifndef FOSSIL_NETWORK_FRAMEWORK_H
 #define FOSSIL_NETWORK_FRAMEWORK_H
 
+#include "protocol.h"
+#include "cluster.h"
 #include "socket.h"
+#include "async.h"
+#include "echo.h"
 #include "http.h"
 #include "udp.h"
 #include "tcp.h"
