@@ -27,7 +27,8 @@ typedef struct fossil_network_tls_ctx fossil_network_tls_ctx_t;
 // Function prototypes
 // *****************************************************************************
 
-* @brief Create a TLS context for client or server.
+/**
+ * @brief Create a TLS context for client or server.
  *
  * @param is_server 1 = server mode, 0 = client mode.
  * @return New TLS context, or NULL on failure.
