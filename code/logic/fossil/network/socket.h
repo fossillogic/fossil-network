@@ -53,7 +53,7 @@ typedef enum {
 // ------------------------------
 // Socket structure
 // ------------------------------
-typedef struct fossil_network_socket fossil_network_socket_t;
+typedef struct fossil_network_socket_t fossil_network_socket_t;
 
 // ------------------------------
 // Poll structure
