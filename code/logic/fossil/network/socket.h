@@ -32,6 +32,7 @@ typedef unsigned char  u_char;
 typedef unsigned short u_short;
 #define _U_INT_DEFINED
 #endif
+#endif
 
 #ifdef _WIN32
     #ifndef WIN32_LEAN_AND_MEAN
