@@ -26,17 +26,22 @@
   #include <errno.h>
 #endif
 
-
-static int fossil__set_socket(fossil_network_socket_t *sock, int fd,
-                              int family, int type, int proto) {
+// Helper: set socket metadata
+static int fossil__set_socket(fossil_network_socket_t *sock,
+                              fossil_socket_fd_t fd,
+                              int family, int type,
+                              fossil_protocol_t proto) {
     if (!sock) return -1;
-    sock->fd = fd;
+    sock->fd     = fd;
     sock->family = family;
-    sock->type = type;
-    sock->protocol = proto;
+    sock->type   = type;
+    sock->proto  = proto;
     return 0;
 }
 
+// ------------------------------
+// TCP Connect
+// ------------------------------
 int fossil_network_tcp_connect(fossil_network_socket_t *sock,
                                const char *host, uint16_t port) {
     if (!sock || !host) return -1;
@@ -46,20 +51,22 @@ int fossil_network_tcp_connect(fossil_network_socket_t *sock,
 
     struct addrinfo hints, *res = NULL, *rp = NULL;
     memset(&hints, 0, sizeof(hints));
-    hints.ai_family   = AF_UNSPEC;   /* IPv4 or IPv6 */
+    hints.ai_family   = AF_UNSPEC;   // IPv4 or IPv6
     hints.ai_socktype = SOCK_STREAM;
 
     int rc = getaddrinfo(host, port_str, &hints, &res);
     if (rc != 0) return -1;
 
-    int fd = -1;
+    fossil_socket_fd_t fd = (fossil_socket_fd_t)-1;
+
     for (rp = res; rp != NULL; rp = rp->ai_next) {
-        fd = (int)socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
-        if (fd < 0) continue;
+        fd = (fossil_socket_fd_t)socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+        if (fd == (fossil_socket_fd_t)-1) continue;
 
         if (connect(fd, rp->ai_addr, (socklen_t)rp->ai_addrlen) == 0) {
-            /* Success */
-            fossil__set_socket(sock, fd, rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+            // Success
+            fossil__set_socket(sock, fd, rp->ai_family, rp->ai_socktype,
+                               (fossil_protocol_t)rp->ai_protocol);
             freeaddrinfo(res);
             return 0;
         }
@@ -69,13 +76,16 @@ int fossil_network_tcp_connect(fossil_network_socket_t *sock,
 #else
         close(fd);
 #endif
-        fd = -1;
+        fd = (fossil_socket_fd_t)-1;
     }
 
     freeaddrinfo(res);
     return -1;
 }
 
+// ------------------------------
+// TCP Listen
+// ------------------------------
 int fossil_network_tcp_listen(fossil_network_socket_t *sock,
                               const char *host, uint16_t port,
                               int backlog) {
@@ -88,15 +98,16 @@ int fossil_network_tcp_listen(fossil_network_socket_t *sock,
     memset(&hints, 0, sizeof(hints));
     hints.ai_family   = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags    = AI_PASSIVE;  /* For binding */
+    hints.ai_flags    = AI_PASSIVE;  // For binding
 
     int rc = getaddrinfo(host, port_str, &hints, &res);
     if (rc != 0) return -1;
 
-    int fd = -1;
+    fossil_socket_fd_t fd = (fossil_socket_fd_t)-1;
+
     for (rp = res; rp != NULL; rp = rp->ai_next) {
-        fd = (int)socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
-        if (fd < 0) continue;
+        fd = (fossil_socket_fd_t)socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+        if (fd == (fossil_socket_fd_t)-1) continue;
 
         int opt = 1;
         setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
@@ -104,8 +115,9 @@ int fossil_network_tcp_listen(fossil_network_socket_t *sock,
 
         if (bind(fd, rp->ai_addr, (socklen_t)rp->ai_addrlen) == 0 &&
             listen(fd, backlog) == 0) {
-            /* Success */
-            fossil__set_socket(sock, fd, rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+            // Success
+            fossil__set_socket(sock, fd, rp->ai_family, rp->ai_socktype,
+                               (fossil_protocol_t)rp->ai_protocol);
             freeaddrinfo(res);
             return 0;
         }
@@ -115,13 +127,16 @@ int fossil_network_tcp_listen(fossil_network_socket_t *sock,
 #else
         close(fd);
 #endif
-        fd = -1;
+        fd = (fossil_socket_fd_t)-1;
     }
 
     freeaddrinfo(res);
     return -1;
 }
 
+// ------------------------------
+// TCP Accept
+// ------------------------------
 int fossil_network_tcp_accept(fossil_network_socket_t *server,
                               fossil_network_socket_t *client) {
     if (!server || !client) return -1;
@@ -129,9 +144,11 @@ int fossil_network_tcp_accept(fossil_network_socket_t *server,
     struct sockaddr_storage addr;
     socklen_t addrlen = sizeof(addr);
 
-    int fd = (int)accept(server->fd, (struct sockaddr *)&addr, &addrlen);
-    if (fd < 0) return -1;
+    fossil_socket_fd_t fd = (fossil_socket_fd_t)
+        accept(server->fd, (struct sockaddr *)&addr, &addrlen);
 
-    fossil__set_socket(client, fd, server->family, server->type, server->protocol);
+    if (fd == (fossil_socket_fd_t)-1) return -1;
+
+    fossil__set_socket(client, fd, server->family, server->type, server->proto);
     return 0;
 }
