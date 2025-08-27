@@ -14,9 +14,6 @@
 #ifndef FOSSIL_NETWORK_SOCKET_H
 #define FOSSIL_NETWORK_SOCKET_H
 
-#define _GNU_SOURCE
-#define _DEFAULT_SOURCE
-
 #include <stddef.h>
 #include <stdint.h>
 #include <errno.h>
@@ -52,6 +49,9 @@
     #endif
 
 #else
+    #define _GNU_SOURCE
+    #define _DEFAULT_SOURCE
+
     // POSIX / Unix-like
     #include <sys/types.h>
     #include <sys/socket.h>
