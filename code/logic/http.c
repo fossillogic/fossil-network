@@ -31,7 +31,7 @@
 // ------------------------------
 int fossil_network_http_get(fossil_network_socket_t *sock,
                             const char *path) {
-    if (!sock || sock->fd < 0 || !path) return -1;
+    if (!sock || !path) return -1;
 
     char req[512];
     int n = snprintf(req, sizeof(req),
@@ -74,7 +74,7 @@ static int fossil_network_http_readline(int fd, char *buf, size_t len) {
 // ------------------------------
 int fossil_network_http_read_response(fossil_network_socket_t *sock,
                                       fossil_network_http_response_t *resp) {
-    if (!sock || sock->fd < 0 || !resp) return -1;
+    if (!sock || !resp) return -1;
 
     char line[512];
     if (fossil_network_http_readline(sock->fd, line, sizeof(line)) != 0)
