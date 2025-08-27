@@ -74,7 +74,7 @@ int fossil_network_cluster_broadcast(const void *buf, size_t len) {
         if (strcmp(g_nodes[i].node_id, g_self.node_id) == 0) continue;
 
         fossil_network_socket_t sock;
-        if (fossil_network_socket_create(&sock, AF_INET, SOCK_DGRAM, 0) != 0) {
+        if (fossil_network_socket_create(&sock, AF_INET, FOSSIL_PROTO_TCP) != 0) {
             continue;
         }
 
