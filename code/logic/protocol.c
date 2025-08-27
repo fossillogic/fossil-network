@@ -21,7 +21,7 @@ static int fossil_network_proto_send_all(int fd, const void *buf, size_t len) {
     const uint8_t *p = (const uint8_t*)buf;
     size_t total = 0;
     while (total < len) {
-        ssize_t n = send(fd, p + total, len - total, 0);
+        ssize_t n = send(fd, (const char *)(p + total), (int)(len - total), 0);
         if (n <= 0) return -1; // error or connection closed
         total += (size_t)n;
     }
@@ -32,7 +32,7 @@ static int fossil_network_proto_recv_all(int fd, void *buf, size_t len) {
     uint8_t *p = (uint8_t*)buf;
     size_t total = 0;
     while (total < len) {
-        ssize_t n = recv(fd, p + total, len - total, 0);
+        ssize_t n = recv(fd, (char *)(p + total), (int)(len - total), 0);
         if (n <= 0) return -1; // error or connection closed
         total += (size_t)n;
     }
