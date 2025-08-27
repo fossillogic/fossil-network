@@ -18,13 +18,6 @@
 #include <errno.h>
 #include <ctype.h>
 
-struct fossil_network_socket_t {
-    fossil_socket_fd_t fd;
-    int family;
-    int type;
-    fossil_protocol_t proto;
-};
-
 
 int fossil_strcasecmp(const char *s1, const char *s2) {
     if (!s1 && !s2) return 0;
