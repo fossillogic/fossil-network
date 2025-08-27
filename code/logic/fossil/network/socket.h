@@ -23,6 +23,16 @@
 #include <errno.h>
 #include <ctype.h>
 
+// --- Portable type definitions for macOS / BSD headers ---
+#if defined(__APPLE__) || defined(__FreeBSD__)
+#include <sys/cdefs.h>
+#ifndef _U_INT_DEFINED
+typedef unsigned int   u_int;
+typedef unsigned char  u_char;
+typedef unsigned short u_short;
+#define _U_INT_DEFINED
+#endif
+
 #ifdef _WIN32
     #ifndef WIN32_LEAN_AND_MEAN
     #define WIN32_LEAN_AND_MEAN
