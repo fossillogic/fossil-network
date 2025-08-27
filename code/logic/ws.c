@@ -28,7 +28,6 @@
   #include <arpa/inet.h>
   #include <netdb.h>
   #include <errno.h>
-  #include <openssl/sha.h>
 #endif
 
 // ------------------------------
