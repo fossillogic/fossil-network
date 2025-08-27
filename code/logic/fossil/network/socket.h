@@ -32,6 +32,7 @@
 
     #include <winsock2.h>
     #include <ws2tcpip.h>
+    #include <bcrypt.h>
     #include <iphlpapi.h>
     #include <windows.h>
 
