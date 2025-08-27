@@ -49,8 +49,9 @@
     #endif
 
 #else
-    #define _GNU_SOURCE
-    #define _DEFAULT_SOURCE
+    #ifndef _POSIX_C_SOURCE
+    #define _POSIX_C_SOURCE 200112L
+    #endif
 
     // POSIX / Unix-like
     #include <sys/types.h>
