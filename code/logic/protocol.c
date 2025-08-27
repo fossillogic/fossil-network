@@ -13,10 +13,6 @@
  */
 #include "fossil/network/protocol.h"
 
-#include <stdint.h>
-#include <string.h>
-#include <arpa/inet.h>   // htonl, ntohl
-#include <unistd.h>      // read, write (POSIX)
 
 // ------------------------------
 // Internal helpers
