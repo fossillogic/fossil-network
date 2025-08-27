@@ -13,23 +13,6 @@
  */
 #include "fossil/network/ws.h"
 
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-
-#ifdef _WIN32
-  #include <winsock2.h>
-  #include <ws2tcpip.h>
-  #include <windows.h>
-  #include <bcrypt.h>
-#else
-  #include <unistd.h>
-  #include <arpa/inet.h>
-  #include <netdb.h>
-  #include <errno.h>
-#endif
-
 // ------------------------------
 // Base64 encoding (for Sec-WebSocket-Key)
 // ------------------------------
