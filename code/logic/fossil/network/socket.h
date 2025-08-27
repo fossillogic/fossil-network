@@ -16,11 +16,56 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include <sys/types.h>
+#include <errno.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <ctype.h>
+
+#ifdef _WIN32
+    #ifndef WIN32_LEAN_AND_MEAN
+    #define WIN32_LEAN_AND_MEAN
+    #endif
+    #ifndef NOMINMAX
+    #define NOMINMAX
+    #endif
+
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+    #include <iphlpapi.h>
+    #include <windows.h>
+
+    typedef SOCKET fossil_socket_fd_t;
+
+    // ssize_t is POSIX; Windows lacks it
+    #if defined(_MSC_VER)
+        #include <BaseTsd.h>
+        typedef SSIZE_T ssize_t;
+    #elif defined(__MINGW32__)
+        #ifndef _SSIZE_T_DEFINED
+            typedef long ssize_t;
+            #define _SSIZE_T_DEFINED
+        #endif
+    #endif
+
+#else
+    // POSIX / Unix-like
+    #include <sys/types.h>
+    #include <sys/socket.h>
+    #include <sys/time.h>
+    #include <netinet/in.h>
+    #include <arpa/inet.h>
+    #include <netdb.h>
+    #include <unistd.h>
+    #include <fcntl.h>
+    #include <poll.h>
+
+    typedef int fossil_socket_fd_t;
+
+#endif
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 // *****************************************************************************
