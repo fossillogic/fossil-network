@@ -14,7 +14,7 @@
 #ifndef FOSSIL_NETWORK_SOCKET_H
 #define FOSSIL_NETWORK_SOCKET_H
 
-#define _POSIX_C_SOURCE 200112L
+#define _GNU_SOURCE
 #define _DEFAULT_SOURCE
 
 #include <stddef.h>
