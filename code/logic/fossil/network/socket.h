@@ -101,7 +101,12 @@ typedef enum {
 // ------------------------------
 // Socket structure
 // ------------------------------
-typedef struct fossil_network_socket_t fossil_network_socket_t;
+typedef struct fossil_network_socket_t {
+    fossil_socket_fd_t fd;
+    int family;
+    int type;
+    fossil_protocol_t proto;
+} fossil_network_socket_t;
 
 // ------------------------------
 // Poll structure
