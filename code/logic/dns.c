@@ -13,19 +13,6 @@
  */
 #include "fossil/network/dns.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-
-#ifdef _WIN32
-  #include <winsock2.h>
-  #include <ws2tcpip.h>
-#else
-  #include <sys/types.h>
-  #include <sys/socket.h>
-  #include <netdb.h>
-  #include <arpa/inet.h>
-#endif
 
 int fossil_network_dns_resolve(const char *host,
                                char addrs[][64],
