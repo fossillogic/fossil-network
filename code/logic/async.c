@@ -13,14 +13,13 @@
  */
 #include "fossil/network/async.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #ifdef _WIN32
-    #include <winsock2.h>
-    #include <ws2tcpip.h>
-    #include <windows.h>
-    typedef WSAPOLLFD fossil_pollfd_t;
+    #define fossil_poll WSAPoll
 #else
-    #include <unistd.h>
-    #include <poll.h>
     #define fossil_poll poll
 #endif
 
@@ -28,8 +27,7 @@
 // Internal Structures
 // *****************************************************************************
 typedef struct {
-    fossil_network_socket_t *sock;
-    int events;
+    fossil_network_pollfd_t pfd;
     void *userdata;
 } fossil_async_entry_t;
 
@@ -72,8 +70,9 @@ int fossil_network_async_add(fossil_network_async_t *loop,
     }
 
     fossil_async_entry_t *e = &loop->entries[loop->count++];
-    e->sock = sock;
-    e->events = events;
+    e->pfd.sock = sock;
+    e->pfd.events = events;
+    e->pfd.revents = 0;
     e->userdata = userdata;
 
     return 0;
@@ -83,27 +82,35 @@ int fossil_network_async_run(fossil_network_async_t *loop,
                              int timeout_ms) {
     if (!loop || loop->count == 0) return -1;
 
-    fossil_pollfd_t *pfds = (fossil_pollfd_t*)calloc(loop->count,
-                                                     sizeof(fossil_pollfd_t));
+    // Build temporary pollfds
+#ifdef _WIN32
+    WSAPOLLFD *pfds = (WSAPOLLFD*)calloc(loop->count, sizeof(WSAPOLLFD));
+#else
+    struct pollfd *pfds = (struct pollfd*)calloc(loop->count, sizeof(struct pollfd));
+#endif
     if (!pfds) return -1;
 
     for (int i = 0; i < loop->count; i++) {
-        pfds[i].fd = loop->entries[i].sock->fd;
+        pfds[i].fd = loop->entries[i].pfd.sock->fd;
         pfds[i].events = 0;
-        if (loop->entries[i].events & 1) pfds[i].events |= POLLIN;
-        if (loop->entries[i].events & 2) pfds[i].events |= POLLOUT;
+        if (loop->entries[i].pfd.events & 1) pfds[i].events |= POLLIN;
+        if (loop->entries[i].pfd.events & 2) pfds[i].events |= POLLOUT;
+        if (loop->entries[i].pfd.events & 4) pfds[i].events |= POLLERR;
     }
 
     int ret = fossil_poll(pfds, loop->count, timeout_ms);
     if (ret > 0) {
         for (int i = 0; i < loop->count; i++) {
-            if (pfds[i].revents & POLLIN) {
-                printf("[async] Read event on socket %d (userdata=%p)\n",
-                       (int)pfds[i].fd, loop->entries[i].userdata);
-            }
-            if (pfds[i].revents & POLLOUT) {
-                printf("[async] Write event on socket %d (userdata=%p)\n",
-                       (int)pfds[i].fd, loop->entries[i].userdata);
+            loop->entries[i].pfd.revents = 0;
+            if (pfds[i].revents & POLLIN)  loop->entries[i].pfd.revents |= 1;
+            if (pfds[i].revents & POLLOUT) loop->entries[i].pfd.revents |= 2;
+            if (pfds[i].revents & POLLERR) loop->entries[i].pfd.revents |= 4;
+
+            if (loop->entries[i].pfd.revents) {
+                printf("[async] Event mask=%d on socket %d (userdata=%p)\n",
+                       loop->entries[i].pfd.revents,
+                       (int)pfds[i].fd,
+                       loop->entries[i].userdata);
             }
         }
     }
