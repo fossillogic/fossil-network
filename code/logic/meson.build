@@ -13,12 +13,6 @@ else
 endif
 
 # ------------------------------
-# OpenSSL dependency
-# ------------------------------
-openssl_dep = dependency('openssl', required: true, method: 'pkg-config',
-    fallback: ['openssl', 'openssl_dep'])
-
-# ------------------------------
 # Fossil Network static library
 # ------------------------------
 fossil_network_lib = static_library(
@@ -31,8 +25,7 @@ fossil_network_lib = static_library(
     install: true,
     dependencies: [cc.find_library('m', required: false),
                    winsock_dep,
-                   bcrypt_dep,
-                   openssl_dep],
+                   bcrypt_dep],
     include_directories: dir
 )
 
@@ -41,6 +34,5 @@ fossil_network_lib = static_library(
 # ------------------------------
 fossil_network_dep = declare_dependency(
     link_with: [fossil_network_lib],
-    dependencies: [winsock_dep, bcrypt_dep, openssl_dep],
     include_directories: dir
 )
