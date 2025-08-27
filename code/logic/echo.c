@@ -36,7 +36,7 @@ int fossil_network_test_echo_server(uint16_t port) {
     memset(&server, 0, sizeof(server));
     memset(&client, 0, sizeof(client));
 
-    if (fossil_network_socket_create(&server, AF_INET, SOCK_STREAM, 0) != 0) {
+    if (fossil_network_socket_create(&server, AF_INET, SOCK_STREAM) != 0) {
         fprintf(stderr, "[echo-server] Failed to create socket\n");
         return -1;
     }
@@ -87,7 +87,7 @@ int fossil_network_test_echo_client(const char *host, uint16_t port) {
     fossil_network_socket_t sock;
     memset(&sock, 0, sizeof(sock));
 
-    if (fossil_network_socket_create(&sock, AF_INET, SOCK_STREAM, 0) != 0) {
+    if (fossil_network_socket_create(&sock, AF_INET, SOCK_STREAM) != 0) {
         fprintf(stderr, "[echo-client] Failed to create socket\n");
         return -1;
     }
