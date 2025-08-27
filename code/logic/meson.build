@@ -15,7 +15,8 @@ endif
 # ------------------------------
 # OpenSSL dependency
 # ------------------------------
-openssl_dep = dependency('openssl', required: true)
+openssl_dep = dependency('openssl', required: true, method: 'pkg-config',
+    fallback: ['openssl', 'openssl_dep'])
 
 # ------------------------------
 # Fossil Network static library
