@@ -12,11 +12,6 @@
  * -----------------------------------------------------------------------------
  */
 #include "fossil/network/socket.h"
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <ctype.h>
 
 
 int fossil_strcasecmp(const char *s1, const char *s2) {
