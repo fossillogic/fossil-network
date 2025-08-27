@@ -12,19 +12,6 @@
  * -----------------------------------------------------------------------------
  */
 #include "fossil/network/tcp.h"
-#include <string.h>
-#include <stdio.h>
-
-#ifdef _WIN32
-  #include <winsock2.h>
-  #include <ws2tcpip.h>
-#else
-  #include <sys/types.h>
-  #include <sys/socket.h>
-  #include <netdb.h>
-  #include <unistd.h>
-  #include <errno.h>
-#endif
 
 // Helper: set socket metadata
 static int fossil__set_socket(fossil_network_socket_t *sock,
