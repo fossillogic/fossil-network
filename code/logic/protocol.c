@@ -51,7 +51,7 @@ static int fossil_network_proto_recv_all(int fd, void *buf, size_t len) {
  */
 int fossil_network_proto_send_length(fossil_network_socket_t *sock,
                                      const void *buf, size_t len) {
-    if (!sock || sock->fd < 0 || !buf) return -1;
+    if (!sock || !buf) return -1;
 
     // encode length prefix
     uint32_t net_len = htonl((uint32_t)len);
@@ -74,7 +74,7 @@ int fossil_network_proto_send_length(fossil_network_socket_t *sock,
  */
 int fossil_network_proto_recv_length(fossil_network_socket_t *sock,
                                      void *buf, size_t max_len) {
-    if (!sock || sock->fd < 0 || !buf) return -1;
+    if (!sock || !buf) return -1;
 
     uint32_t net_len = 0;
     if (fossil_network_proto_recv_all(sock->fd, &net_len, sizeof(net_len)) != 0)
