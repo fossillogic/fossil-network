@@ -16,10 +16,11 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include <errno.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <ctype.h>
+#include <errno.h>
 #include <ctype.h>
 
 #ifdef _WIN32
