@@ -55,7 +55,29 @@ namespace fossil {
 
 namespace network {
 
+    class Cluster {
+    public:
+        /**
+         * @brief Join a cluster of nodes.
+         *
+         * @param self Node info for this instance.
+         * @param seeds Array of known seed nodes.
+         * @param count Number of seeds.
+         * @return 0 on success, non-zero on failure.
+         */
+        static int join(fossil_network_cluster_node_t *self,
+                        const fossil_network_cluster_node_t *seeds,
+                        int count) {
+            return fossil_network_cluster_join(self, seeds, count);
+        }
 
+        /**
+         * @brief Broadcast a message to all nodes.
+         */
+        static int broadcast(const void *buf, size_t len) {
+            return fossil_network_cluster_broadcast(buf, len);
+        }
+    };
 
 } // namespace network
 

@@ -66,7 +66,48 @@ namespace fossil {
 
 namespace network {
 
+    class Async {
+    public:
+        /**
+         * @brief Create a new async event loop.
+         */
+        static fossil_network_async_t* create() {
+            return fossil_network_async_create();
+        }
 
+        /**
+         * @brief Destroy an async event loop.
+         */
+        static void free(fossil_network_async_t *loop) {
+            fossil_network_async_free(loop);
+        }
+
+        /**
+         * @brief Register a socket with the loop.
+         *
+         * @param loop Event loop handle.
+         * @param sock Socket to watch.
+         * @param events Bitmask (1=read, 2=write).
+         * @param userdata Arbitrary pointer passed to callback.
+         */
+        static int add(fossil_network_async_t *loop,
+                       fossil_network_socket_t *sock,
+                       int events,
+                       void *userdata) {
+            return fossil_network_async_add(loop, sock, events, userdata);
+        }
+
+        /**
+         * @brief Run the event loop.
+         *
+         * @param loop Event loop handle.
+         * @param timeout_ms Timeout per iteration.
+         */
+        static int run(fossil_network_async_t *loop,
+                       int timeout_ms) {
+            return fossil_network_async_run(loop, timeout_ms);
+        }
+    };
 
 } // namespace network
 

@@ -39,12 +39,32 @@ int fossil_network_dns_resolve(const char *host,
 
 #ifdef __cplusplus
 }
+#include <string>
+#include <vector>
 
 namespace fossil {
 
 namespace network {
 
-
+    class Dns {
+    public:
+        /**
+         * @brief Resolve a hostname into IPv4/IPv6 addresses.
+         *
+         * @param host Hostname string.
+         * @param addrs Output array of strings (caller frees).
+         * @param max_addrs Maximum addresses to retrieve.
+         * @return Number of addresses resolved, or -1 on error.
+         */
+        static int resolve(const std::string &host, std::vector<std::string> &addrs) {
+            char addr_buf[64];
+            int num_addrs = fossil_network_dns_resolve(host.c_str(), addr_buf, 64);
+            if (num_addrs > 0) {
+                addrs.assign(addr_buf, addr_buf + num_addrs);
+            }
+            return num_addrs;
+        }
+    };
 
 } // namespace network
 

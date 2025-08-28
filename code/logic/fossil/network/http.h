@@ -58,12 +58,29 @@ int fossil_network_http_read_response(fossil_network_socket_t *sock,
 
 #ifdef __cplusplus
 }
+#include <string>
 
 namespace fossil {
 
 namespace network {
 
+    class Http {
+    public:
+        /**
+         * @brief Send a simple HTTP GET request.
+         */
+        static int get(fossil_network_socket_t *sock, const std::string &path) {
+            return fossil_network_http_get(sock, path.c_str());
+        }
 
+        /**
+         * @brief Read an HTTP response.
+         */
+        static int read_response(fossil_network_socket_t *sock,
+                                 fossil_network_http_response_t *resp) {
+            return fossil_network_http_read_response(sock, resp);
+        }
+    };
 
 } // namespace network
 

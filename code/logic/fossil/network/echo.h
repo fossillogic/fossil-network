@@ -41,11 +41,28 @@ int fossil_network_test_echo_client(const char *host, uint16_t port);
 #ifdef __cplusplus
 }
 
+#include <string>
+
 namespace fossil {
 
 namespace network {
 
+    class Echo {
+    public:
+        /**
+         * @brief Run a simple echo server for testing.
+         */
+        static int server(uint16_t port) {
+            return fossil_network_test_echo_server(port);
+        }
 
+        /**
+         * @brief Connect to an echo server and run test exchange.
+         */
+        static int client(const std::string &host, uint16_t port) {
+            return fossil_network_test_echo_client(host.c_str(), port);
+        }
+    };
 
 } // namespace network
 

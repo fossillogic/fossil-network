@@ -48,12 +48,39 @@ int fossil_network_udp_set_broadcast(fossil_network_socket_t *sock,
 
 #ifdef __cplusplus
 }
+#include <string>
 
 namespace fossil {
 
 namespace network {
 
+    class Udp
+    {
+    public:
+        /**
+         * @brief Bind a UDP socket to a local address and port.
+         *
+         * @param sock Pointer to initialized fossil_network_socket_t.
+         * @param host Local address (empty = any).
+         * @param port Local UDP port.
+         * @return 0 on success, non-zero on failure.
+         */
+        static int bind(fossil_network_socket_t *sock, const std::string &host, uint16_t port) {
+            // Pass nullptr if host is empty, otherwise pass c_str()
+            return fossil_network_udp_bind(sock, host.empty() ? nullptr : host.c_str(), port);
+        }
 
+        /**
+         * @brief Enable broadcast mode for a UDP socket.
+         *
+         * @param sock Pointer to fossil_network_socket_t.
+         * @param enable 1 = enable, 0 = disable.
+         * @return 0 on success, non-zero on failure.
+         */
+        static int set_broadcast(fossil_network_socket_t *sock, int enable) {
+            return fossil_network_udp_set_broadcast(sock, enable);
+        }
+    };
 
 } // namespace network
 
