@@ -44,7 +44,7 @@ static char *fossil_base64_encode(const uint8_t *input, size_t len) {
 // ------------------------------
 // WebSocket Handshake
 // ------------------------------
-int fossil_network_ws_handshake(fossil_network_socket_t *sock,
+int fossil_network_wsocket_handshake(fossil_network_socket_t *sock,
                                 const char *host, const char *path) {
     if (!sock || !host || !path) return -1;
 
@@ -99,7 +99,7 @@ int fossil_network_ws_handshake(fossil_network_socket_t *sock,
 // ------------------------------
 // Frame Helpers
 // ------------------------------
-static int fossil_ws_send_frame(fossil_network_socket_t *sock,
+static int fossil_wsocket_send_frame(fossil_network_socket_t *sock,
                                 int opcode, const char *msg, size_t len) {
     if (!sock || sock->fd == (fossil_socket_fd_t)-1) return -1;
 
@@ -128,7 +128,7 @@ static int fossil_ws_send_frame(fossil_network_socket_t *sock,
     return 0;
 }
 
-static int fossil_ws_recv_frame(fossil_network_socket_t *sock,
+static int fossil_wsocket_recv_frame(fossil_network_socket_t *sock,
                                 char *buf, size_t len) {
     uint8_t header[2];
     if (recv(sock->fd, (char *)header, 2, 0) != 2) return -1;
@@ -160,14 +160,14 @@ static int fossil_ws_recv_frame(fossil_network_socket_t *sock,
 // ------------------------------
 // Public WebSocket API
 // ------------------------------
-int fossil_network_ws_send_text(fossil_network_socket_t *sock,
+int fossil_network_wsocket_send_text(fossil_network_socket_t *sock,
                                 const char *msg) {
-    return fossil_ws_send_frame(sock, 0x1, msg, strlen(msg));
+    return fossil_wsocket_send_frame(sock, 0x1, msg, strlen(msg));
 }
 
-int fossil_network_ws_recv_text(fossil_network_socket_t *sock,
+int fossil_network_wsocket_recv_text(fossil_network_socket_t *sock,
                                 char *buf, size_t len) {
-    int opcode = fossil_ws_recv_frame(sock, buf, len);
+    int opcode = fossil_wsocket_recv_frame(sock, buf, len);
     if (opcode != 0x1) return -1; // only accept text frames
     return 0;
 }
