@@ -61,7 +61,7 @@ FOSSIL_TEST_CASE(c_tcp_test_listen_and_accept) {
     socklen_t addrlen = sizeof(addr);
     rc = getsockname(server.fd, (struct sockaddr *)&addr, &addrlen);
     ASSUME_ITS_TRUE(rc == 0);
-    uint16_t port = ntohs(addr.sin_port);
+    // uint16_t port = ntohs(addr.sin_port); // Removed unused variable
 
     // Start a client in another thread/process would be ideal, but here we just test accept fails with no connection
     rc = fossil_network_tcp_accept(&server, &client);
@@ -74,7 +74,7 @@ FOSSIL_TEST_CASE(c_tcp_test_listen_invalid_port) {
     fossil_network_socket_t sock;
     int rc = fossil_network_socket_create(&sock, AF_INET, fossil_network_socket_proto_from_name("tcp"));
     ASSUME_ITS_TRUE(rc == 0);
-    rc = fossil_network_tcp_listen(&sock, "127.0.0.1", 65536, 1); // Invalid port
+    rc = fossil_network_tcp_listen(&sock, "127.0.0.1", (uint16_t)65536, 1); // Invalid port (explicit cast to suppress warning)
     ASSUME_ITS_TRUE(rc != 0);
     fossil_network_socket_close(&sock);
 }
