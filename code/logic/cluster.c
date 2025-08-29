@@ -82,10 +82,19 @@ int fossil_network_cluster_broadcast(const void *buf, size_t len) {
         memset(&addr, 0, sizeof(addr));
         addr.sin_family = AF_INET;
         addr.sin_port = htons(g_nodes[i].port);
-        inet_pton(AF_INET, g_nodes[i].address, &addr.sin_addr);
+        if (inet_pton(AF_INET, g_nodes[i].address, &addr.sin_addr) <= 0) {
+            fprintf(stderr, "[cluster] Invalid address for node %s: %s\n", g_nodes[i].node_id, g_nodes[i].address);
+            fossil_network_socket_close(&sock);
+            continue;
+        }
 
-        sendto(sock.fd, (const char*)buf, (int)len, 0,
-               (struct sockaddr*)&addr, sizeof(addr));
+        ssize_t sent = sendto(sock.fd, (const char*)buf, (int)len, 0,
+                              (struct sockaddr*)&addr, sizeof(addr));
+        if (sent < 0) {
+            perror("[cluster] sendto failed");
+        }
+
+        fossil_network_socket_close(&sock);
 
         fossil_network_socket_close(&sock);
     }
