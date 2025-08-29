@@ -69,7 +69,8 @@ FOSSIL_TEST_CASE(c_cluster_test_broadcast_with_valid_buffer) {
     fossil_network_cluster_node_t seeds[1] = {
         { "node2", "127.0.0.2", 9002 }
     };
-    fossil_network_cluster_join(&self, seeds, 1);
+    int join_result = fossil_network_cluster_join(&self, seeds, 1);
+    ASSUME_ITS_TRUE(join_result == 0);
 
     const char msg[] = "hello cluster";
     int result = fossil_network_cluster_broadcast(msg, sizeof(msg));
@@ -77,11 +78,25 @@ FOSSIL_TEST_CASE(c_cluster_test_broadcast_with_valid_buffer) {
 }
 
 FOSSIL_TEST_CASE(c_cluster_test_broadcast_with_null_buffer) {
+    fossil_network_cluster_node_t self = { "node1", "127.0.0.1", 9001 };
+    fossil_network_cluster_node_t seeds[1] = {
+        { "node2", "127.0.0.2", 9002 }
+    };
+    int join_result = fossil_network_cluster_join(&self, seeds, 1);
+    ASSUME_ITS_TRUE(join_result == 0);
+
     int result = fossil_network_cluster_broadcast(NULL, 10);
     ASSUME_ITS_TRUE(result != 0);
 }
 
 FOSSIL_TEST_CASE(c_cluster_test_broadcast_with_zero_length) {
+    fossil_network_cluster_node_t self = { "node1", "127.0.0.1", 9001 };
+    fossil_network_cluster_node_t seeds[1] = {
+        { "node2", "127.0.0.2", 9002 }
+    };
+    int join_result = fossil_network_cluster_join(&self, seeds, 1);
+    ASSUME_ITS_TRUE(join_result == 0);
+
     char dummy[4] = "abc";
     int result = fossil_network_cluster_broadcast(dummy, 0);
     ASSUME_ITS_TRUE(result != 0);
