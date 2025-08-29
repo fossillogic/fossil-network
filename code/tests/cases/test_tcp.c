@@ -49,26 +49,26 @@ FOSSIL_TEST_CASE(c_tcp_test_connect_invalid_host) {
     fossil_network_socket_close(&sock);
 }
 
-// FOSSIL_TEST_CASE(c_tcp_test_listen_and_accept) {
-//     fossil_network_socket_t server, client;
-//     int rc = fossil_network_socket_create(&server, AF_INET, fossil_network_socket_proto_from_name("tcp"));
-//     ASSUME_ITS_TRUE(rc == 0);
-//     rc = fossil_network_tcp_listen(&server, "127.0.0.1", 0, 1); // Bind to any port
-//     ASSUME_ITS_TRUE(rc == 0);
+FOSSIL_TEST_CASE(c_tcp_test_listen_and_accept) {
+    fossil_network_socket_t server, client;
+    int rc = fossil_network_socket_create(&server, AF_INET, fossil_network_socket_proto_from_name("tcp"));
+    ASSUME_ITS_TRUE(rc == 0);
+    rc = fossil_network_tcp_listen(&server, "127.0.0.1", 0, 1); // Bind to any port
+    ASSUME_ITS_TRUE(rc == 0);
 
-//     // Get the port assigned by the OS
-//     struct sockaddr_in addr;
-//     socklen_t addrlen = sizeof(addr);
-//     rc = getsockname(server.fd, (struct sockaddr *)&addr, &addrlen);
-//     ASSUME_ITS_TRUE(rc == 0);
-//     // uint16_t port = ntohs(addr.sin_port); // Removed unused variable
+    // Get the port assigned by the OS
+    struct sockaddr_in addr;
+    socklen_t addrlen = sizeof(addr);
+    rc = getsockname(server.fd, (struct sockaddr *)&addr, &addrlen);
+    ASSUME_ITS_TRUE(rc == 0);
+    // uint16_t port = ntohs(addr.sin_port); // Removed unused variable
 
-//     // Start a client in another thread/process would be ideal, but here we just test accept fails with no connection
-//     rc = fossil_network_tcp_accept(&server, &client);
-//     ASSUME_ITS_TRUE(rc != 0);
+    // Start a client in another thread/process would be ideal, but here we just test accept fails with no connection
+    rc = fossil_network_tcp_accept(&server, &client);
+    ASSUME_ITS_TRUE(rc != 0);
 
-//     fossil_network_socket_close(&server);
-// }
+    fossil_network_socket_close(&server);
+}
 
 // FOSSIL_TEST_CASE(c_tcp_test_listen_invalid_port) {
 //     fossil_network_socket_t sock;
@@ -108,7 +108,7 @@ FOSSIL_TEST_CASE(c_tcp_test_connect_invalid_host) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(c_tcp_tests) {
     FOSSIL_TEST_ADD(c_tcp_fixture, c_tcp_test_connect_invalid_host);
-    // FOSSIL_TEST_ADD(c_tcp_fixture, c_tcp_test_listen_and_accept);
+    FOSSIL_TEST_ADD(c_tcp_fixture, c_tcp_test_listen_and_accept);
     // FOSSIL_TEST_ADD(c_tcp_fixture, c_tcp_test_listen_invalid_port);
     // FOSSIL_TEST_ADD(c_tcp_fixture, c_tcp_test_connect_null_params);
     // FOSSIL_TEST_ADD(c_tcp_fixture, c_tcp_test_listen_null_sock);
