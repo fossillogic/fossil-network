@@ -108,7 +108,7 @@ FOSSIL_TEST_CASE(c_tcp_test_accept_null_params) {
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(c_tcp_tests) {
     FOSSIL_TEST_ADD(c_tcp_fixture, c_tcp_test_connect_invalid_host);
-    // FOSSIL_TEST_ADD(c_tcp_fixture, c_tcp_test_listen_and_accept);
+    // FOSSIL_TEST_ADD(c_tcp_fixture, c_tcp_test_listen_and_accept); // needs a real address to accept connections from.
     FOSSIL_TEST_ADD(c_tcp_fixture, c_tcp_test_listen_invalid_port);
     FOSSIL_TEST_ADD(c_tcp_fixture, c_tcp_test_connect_null_params);
     FOSSIL_TEST_ADD(c_tcp_fixture, c_tcp_test_listen_null_sock);
