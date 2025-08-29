@@ -1,9 +1,8 @@
 # **Fossil Network by Fossil Logic**
 
-**Fossil Network** is a lightweight, cross-platform networking library written in pure C with zero external dependencies. Designed for high-performance applications, embedded systems, and multi-protocol communication, Fossil Network provides abstractions for TCP, UDP, multicast, TLS, and non-blocking I/O, making it easy to build reliable networked software while keeping the footprint minimal.
+**Fossil Network** is a lightweight, cross-platform sockets library written in pure C with zero external dependencies. Focused on efficient socket management, it enables high-performance applications and embedded systems to communicate over TCP, UDP, and multicast. With abstractions for non-blocking I/O and event-driven networking, Fossil Network simplifies building reliable, socket-based software while maintaining a minimal footprint.
 
 ### Key Features
-
 - **Cross-Platform Support**  
   Works seamlessly on Windows, macOS, Linux, and embedded platforms.
 
@@ -11,7 +10,7 @@
   Pure C implementation for maximum portability, auditability, and ease of integration.
 
 - **Multi-Protocol Support**  
-  TCP, UDP, multicast, and TLS-ready connections for versatile networking needs.
+  TCP, UDP, and multicast connections for versatile networking needs.
 
 - **Non-Blocking & Event-Driven I/O**  
   Supports timeouts, event callbacks, and efficient handling of multiple connections.
@@ -19,51 +18,44 @@
 - **Lightweight and Efficient**  
   Optimized for minimal resource usage in embedded or resource-constrained environments.
 
-- **Secure Connections**  
-  Optional TLS support via OpenSSL for encrypted communication.
-
 - **Modular Design**  
   Easily integrated into existing projects or extended for custom protocols.
 
-## Getting Started
+## ***Prerequisites***
 
-### Prerequisites
+To get started, ensure you have the following installed:
 
-- **Meson Build System**  
-  Fossil Network uses Meson for build configuration. If you don’t have Meson installed, follow the instructions on the official [Meson website](https://mesonbuild.com/Getting-meson.html).
+- **Meson Build System**: If you don’t have Meson `1.8.0` or newer installed, follow the installation instructions on the official [Meson website](https://mesonbuild.com/Getting-meson.html).
+- **Conan Package Manager**: If you prefer using Conan, ensure it is installed by following the instructions on the official [Conan website](https://docs.conan.io/en/latest/installation.html).
 
-### Adding Fossil Network as a Dependency
+### Adding Dependency
 
-#### Using Meson
+#### Adding via Meson Git Wrap
 
-### **Install or Upgrade Meson** (version 1.3 or newer recommended):
+To add a git-wrap, place a `.wrap` file in `subprojects` with the Git repo URL and revision, then use `dependency('fossil-network')` in `meson.build` so Meson can fetch and build it automatically.
 
-```sh
-   python -m pip install meson           # Install Meson
-   python -m pip install --upgrade meson # Upgrade Meson
+#### Adding via Conan GitHub repository
+
+ packages directly from a GitHub repository if it contains a valid `conanfile.py`.
+
+```bash
+conan install git+https://github.com/fossillogic/fossil-network.git#v0.1.0 --name fossil_network --build=missing
 ```
-###	Add the .wrap File
-Place a file named fossil-network.wrap in your subprojects directory with the following content:
+
+#### Integrate the Dependency:
+
+Add the `fossil-network.wrap` file in your `subprojects` directory and include the following content:
 
 ```ini
-# ======================
-# Git Wrap package definition
-# ======================
 [wrap-git]
 url = https://github.com/fossillogic/fossil-network.git
 revision = v0.1.0
 
 [provide]
-fossil-network = fossil_network_dep
+dependency_names = fossil-network
 ```
 
-###	Integrate in Your meson.build
-Add the dependency by including this line:
-
-```meson
-network_dep = dependency('fossil-network')
-```
-
+**Note**: For the best experience, always use the latest releases. Visit the [releases](https://github.com/fossillogic/fossil-network/releases) page for the latest versions.
 
 ## Build Configuration Options
 
