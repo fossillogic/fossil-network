@@ -38,3 +38,5 @@ fossil_network_dep = declare_dependency(
     link_with: [fossil_network_lib],
     include_directories: dir
 )
+
+meson.override_dependency('fossil-network', fossil_network_dep)
