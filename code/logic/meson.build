@@ -17,8 +17,8 @@ endif
 # ------------------------------
 # Fossil Network static library
 # ------------------------------
-fossil_network_lib = static_library(
-    'fossil-network',
+fossil_network_lib = library(
+    'fossil_network',
     files(
         'socket.c', 'udp.c', 'tcp.c', 'http.c',
         'dns.c', 'cluster.c', 'async.c',
