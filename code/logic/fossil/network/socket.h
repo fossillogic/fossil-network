@@ -482,7 +482,6 @@ fossil_network_error_t fossil_network_socket_translate_error(void);
 #include <string>
 #include <utility>
 #include <memory>
-#include <cstring>
 
 namespace fossil {
 
@@ -501,7 +500,7 @@ namespace network {
         /**
          * @brief Default constructor. Initializes the internal socket structure to zero.
          */
-        Socket() { std::memset(&c_sock_, 0, sizeof(c_sock_)); }
+        Socket() { memset(&c_sock_, 0, sizeof(c_sock_)); }
 
         /**
          * @brief Construct from an existing fossil_network_socket_t.
@@ -528,20 +527,16 @@ namespace network {
         /**
          * @brief Move constructor. Transfers ownership of the socket.
          * @param other The socket to move from.
-        #if defined(_WIN32)
-                static constexpr fossil_socket_fd_t invalid_fd = INVALID_SOCKET;
-        #else
-                static constexpr fossil_socket_fd_t invalid_fd = -1;
-        #endif
-                Socket(Socket&& other) noexcept { c_sock_ = other.c_sock_; other.c_sock_.fd = invalid_fd; }
+         */
+        Socket(Socket&& other) noexcept { c_sock_ = other.c_sock_; other.c_sock_.fd = -1; }
+
+        /**
+         * @brief Move assignment. Closes this socket and takes ownership from other.
+         * @param other The socket to move from.
+         * @return Reference to this socket.
+         */
         Socket& operator=(Socket&& other) noexcept {
             if (this != &other) {
-                close();
-                c_sock_ = other.c_sock_;
-                other.c_sock_.fd = invalid_fd;
-            }
-            return *this;
-        }
                 close();
                 c_sock_ = other.c_sock_;
                 other.c_sock_.fd = -1;
@@ -625,16 +620,16 @@ namespace network {
          */
         int connect(const std::string& address, uint16_t port) {
             return fossil_network_socket_connect(&c_sock_, address.c_str(), port);
-        int close() {
-            if (c_sock_.fd != invalid_fd) {
-                int r = fossil_network_socket_close(&c_sock_);
-                c_sock_.fd = invalid_fd;
-                return r;
-            }
-            return 0;
         }
+
+        /**
+         * @brief Close the socket and release its resources.
+         * @return 0 on success, non-zero on failure.
+         */
+        int close() {
+            if (c_sock_.fd != (fossil_socket_fd_t)-1) {
                 int r = fossil_network_socket_close(&c_sock_);
-                c_sock_.fd = -1;
+                c_sock_.fd = (fossil_socket_fd_t)-1;
                 return r;
             }
             return 0;
