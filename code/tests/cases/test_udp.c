@@ -22,13 +22,13 @@
 // mock objects are set here.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-FOSSIL_TEST_SUITE(c_socket_fixture);
+FOSSIL_TEST_SUITE(c_udp_fixture);
 
-FOSSIL_SETUP(c_socket_fixture) {
+FOSSIL_SETUP(c_udp_fixture) {
     // Setup the test fixture
 }
 
-FOSSIL_TEARDOWN(c_socket_fixture) {
+FOSSIL_TEARDOWN(c_udp_fixture) {
     // Teardown the test fixture
 }
 
@@ -40,57 +40,61 @@ FOSSIL_TEARDOWN(c_socket_fixture) {
 // as samples for library usage.
 // * * * * * * * * * * * * * * * * * * * * * * * *
 
-FOSSIL_TEST_CASE(c_socket_test_socket_init_cleanup) {
+FOSSIL_TEST_CASE(c_udp_test_udp_bind_success) {
+    fossil_network_socket_t sock;
     int rc = fossil_network_socket_init();
     ASSUME_ITS_TRUE(rc == 0);
+
+    // Bind to any address, ephemeral port
+    rc = fossil_network_udp_bind(&sock, NULL, 0);
+    ASSUME_ITS_TRUE(rc == 0);
+
+    rc = fossil_network_socket_close(&sock);
+    ASSUME_ITS_TRUE(rc == 0);
+
     rc = fossil_network_socket_cleanup();
     ASSUME_ITS_TRUE(rc == 0);
 }
 
-FOSSIL_TEST_CASE(c_socket_test_proto_name_conversion) {
-    fossil_protocol_t proto = fossil_network_socket_proto_from_name("tcp");
-    ASSUME_ITS_TRUE(proto != FOSSIL_PROTO_UNKNOWN);
-    const char *name = fossil_network_socket_proto_to_name(proto);
-    ASSUME_ITS_TRUE(name != NULL);
+FOSSIL_TEST_CASE(c_udp_test_udp_bind_invalid_sock) {
+    int rc = fossil_network_udp_bind(NULL, "127.0.0.1", 12345);
+    ASSUME_ITS_TRUE(rc != 0);
 }
 
-FOSSIL_TEST_CASE(c_socket_test_socket_create_close) {
+FOSSIL_TEST_CASE(c_udp_test_udp_set_broadcast_enable_disable) {
     fossil_network_socket_t sock;
-    int rc = fossil_network_socket_create(&sock, AF_INET, fossil_network_socket_proto_from_name("tcp"));
+    int rc = fossil_network_socket_init();
     ASSUME_ITS_TRUE(rc == 0);
+
+    rc = fossil_network_udp_bind(&sock, NULL, 0);
+    ASSUME_ITS_TRUE(rc == 0);
+
+    rc = fossil_network_udp_set_broadcast(&sock, 1);
+    ASSUME_ITS_TRUE(rc == 0);
+
+    rc = fossil_network_udp_set_broadcast(&sock, 0);
+    ASSUME_ITS_TRUE(rc == 0);
+
     rc = fossil_network_socket_close(&sock);
+    ASSUME_ITS_TRUE(rc == 0);
+
+    rc = fossil_network_socket_cleanup();
     ASSUME_ITS_TRUE(rc == 0);
 }
 
-FOSSIL_TEST_CASE(c_socket_test_socket_bind_listen_close) {
-    fossil_network_socket_t sock;
-    int rc = fossil_network_socket_create(&sock, AF_INET, fossil_network_socket_proto_from_name("tcp"));
-    ASSUME_ITS_TRUE(rc == 0);
-    rc = fossil_network_socket_bind(&sock, "127.0.0.1", 0); // bind to any port
-    ASSUME_ITS_TRUE(rc == 0);
-    rc = fossil_network_socket_listen(&sock, 1);
-    ASSUME_ITS_TRUE(rc == 0);
-    rc = fossil_network_socket_close(&sock);
-    ASSUME_ITS_TRUE(rc == 0);
-}
-
-FOSSIL_TEST_CASE(c_socket_test_socket_open_close) {
-    fossil_network_socket_t sock;
-    int rc = fossil_network_socket_open(&sock, "tcp", "127.0.0.1", 0);
-    ASSUME_ITS_TRUE(rc == 0);
-    rc = fossil_network_socket_close(&sock);
-    ASSUME_ITS_TRUE(rc == 0);
+FOSSIL_TEST_CASE(c_udp_test_udp_set_broadcast_invalid_sock) {
+    int rc = fossil_network_udp_set_broadcast(NULL, 1);
+    ASSUME_ITS_TRUE(rc != 0);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
-FOSSIL_TEST_GROUP(c_socket_tests) {
-    FOSSIL_TEST_ADD(c_socket_fixture, c_socket_test_socket_init_cleanup);
-    FOSSIL_TEST_ADD(c_socket_fixture, c_socket_test_proto_name_conversion);
-    FOSSIL_TEST_ADD(c_socket_fixture, c_socket_test_socket_create_close);
-    FOSSIL_TEST_ADD(c_socket_fixture, c_socket_test_socket_bind_listen_close);
-    FOSSIL_TEST_ADD(c_socket_fixture, c_socket_test_socket_open_close);
+FOSSIL_TEST_GROUP(c_udp_tests) {
+    FOSSIL_TEST_ADD(c_udp_fixture, c_udp_test_udp_bind_success);
+    FOSSIL_TEST_ADD(c_udp_fixture, c_udp_test_udp_bind_invalid_sock);
+    FOSSIL_TEST_ADD(c_udp_fixture, c_udp_test_udp_set_broadcast_enable_disable);
+    FOSSIL_TEST_ADD(c_udp_fixture, c_udp_test_udp_set_broadcast_invalid_sock);
 
-    FOSSIL_TEST_REGISTER(c_socket_fixture);
+    FOSSIL_TEST_REGISTER(c_udp_fixture);
 } // end of tests
