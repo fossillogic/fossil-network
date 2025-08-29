@@ -481,6 +481,7 @@ fossil_network_error_t fossil_network_socket_translate_error(void);
 #include <stdexcept>
 #include <string>
 #include <utility>
+#include <memory>
 
 namespace fossil {
 
