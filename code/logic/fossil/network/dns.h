@@ -41,6 +41,7 @@ int fossil_network_dns_resolve(const char *host,
 }
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace fossil {
 
@@ -57,10 +58,13 @@ namespace network {
          * @return Number of addresses resolved, or -1 on error.
          */
         static int resolve(const std::string &host, std::vector<std::string> &addrs) {
-            char addr_buf[64];
+            char addr_buf[64][64];
             int num_addrs = fossil_network_dns_resolve(host.c_str(), addr_buf, 64);
+            addrs.clear();
             if (num_addrs > 0) {
-                addrs.assign(addr_buf, addr_buf + num_addrs);
+                for (int i = 0; i < num_addrs; ++i) {
+                    addrs.emplace_back(addr_buf[i]);
+                }
             }
             return num_addrs;
         }
