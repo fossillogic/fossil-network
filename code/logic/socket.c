@@ -296,6 +296,7 @@ int fossil_network_socket_set_nonblocking(fossil_network_socket_t *sock,
 // ---------------------------------------------------------
 // Hostname Resolution
 // ---------------------------------------------------------
+
 int fossil_network_socket_resolve_hostname(const char *hostname,
                                            char *ip_buffer,
                                            size_t ip_buffer_len) {

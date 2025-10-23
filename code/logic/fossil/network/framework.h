@@ -19,11 +19,5 @@
 #include "socket.h"
 #include "async.h"
 #include "echo.h"
-#include "http.h"
-#include "udp.h"
-#include "tcp.h"
-#include "dns.h"
-#include "tls.h"
-#include "ws.h"
 
 #endif /* FOSSIL_NETWORK_FRAMEWORK_H */
