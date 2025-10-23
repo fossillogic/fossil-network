@@ -11,7 +11,7 @@
  * Copyright (C) 2024 Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
-#include "fossil/network/socket.h"
+#include "fossil/network/packet.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
