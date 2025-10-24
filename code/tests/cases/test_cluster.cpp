@@ -52,7 +52,7 @@ make_node(const char* id, const char* addr, uint16_t port, bool active = true) {
     std::strncpy(node.address, addr, sizeof(node.address) - 1);
     node.port = port;
     node.is_active = active ? 1 : 0;
-    node.last_heartbeat = static_cast<uint64_t>(std::time(nullptr));
+    node.last_heartbeat = static_cast<uint64_t>(time(nullptr));
     std::snprintf(node.metadata, sizeof(node.metadata),
                   "Node:%s Addr:%s Port:%u", id, addr, port);
     return node;
