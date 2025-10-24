@@ -22,6 +22,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <ctype.h>
+#include <time.h>
 
 // --- Portable type definitions for macOS / BSD headers ---
 #if defined(__APPLE__) || defined(__FreeBSD__)

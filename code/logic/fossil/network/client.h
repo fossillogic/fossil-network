@@ -16,6 +16,8 @@
 
 #include "socket.h"
 
+#define FOSSIL_NETWORK_CLIENT_MAX 32
+
 #ifdef __cplusplus
 extern "C"
 {

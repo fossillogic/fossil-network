@@ -31,7 +31,6 @@ typedef struct fossil_network_client_t {
 // ============================================================================
 // Simple client registry (static, expandable later)
 // ============================================================================
-#define FOSSIL_NETWORK_CLIENT_MAX 32
 static fossil_network_client_t fossil_clients[FOSSIL_NETWORK_CLIENT_MAX];
 
 // ---------------------------------------------------------------------------
