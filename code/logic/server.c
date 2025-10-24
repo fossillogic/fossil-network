@@ -54,8 +54,7 @@ static fossil_network_server_t *fossil_network_server_alloc(const char *server_i
     for (size_t i = 0; i < FOSSIL_NETWORK_SERVER_MAX; ++i) {
         if (!fossil_servers[i].active) {
             memset(&fossil_servers[i], 0, sizeof(fossil_network_server_t));
-            strncpy(fossil_servers[i].id, server_id, sizeof(fossil_servers[i].id) - 1);
-            fossil_servers[i].id[sizeof(fossil_servers[i].id) - 1] = '\0';
+            snprintf(fossil_servers[i].id, sizeof(fossil_servers[i].id), "%s", server_id);
             return &fossil_servers[i];
         }
     }
