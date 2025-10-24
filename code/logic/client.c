@@ -55,6 +55,7 @@ static fossil_network_client_t *fossil_network_client_alloc(const char *client_i
         if (!fossil_clients[i].connected) {
             memset(&fossil_clients[i], 0, sizeof(fossil_network_client_t));
             strncpy(fossil_clients[i].id, client_id, sizeof(fossil_clients[i].id) - 1);
+            fossil_clients[i].id[sizeof(fossil_clients[i].id) - 1] = '\0';
             return &fossil_clients[i];
         }
     }
