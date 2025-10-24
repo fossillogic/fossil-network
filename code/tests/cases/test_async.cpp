@@ -70,10 +70,10 @@ FOSSIL_TEST_CASE(cpp_asyncpp_test_run_empty_loop) {
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(cpp_asyncpp_tests) {
-    FOSSIL_TEST_ADD(cpp_asyncpp_fixture, cpp_asyncpp_test_add_and_run_stub);
-    FOSSIL_TEST_ADD(cpp_asyncpp_fixture, cpp_asyncpp_test_add_null_loop);
+    FOSSIL_TEST_ADD(cpp_asyncpp_fixture, cpp_asyncpp_test_create_and_free);
     FOSSIL_TEST_ADD(cpp_asyncpp_fixture, cpp_asyncpp_test_add_null_sock);
     FOSSIL_TEST_ADD(cpp_asyncpp_fixture, cpp_asyncpp_test_run_null_loop);
+    FOSSIL_TEST_ADD(cpp_asyncpp_fixture, cpp_asyncpp_test_run_empty_loop);
 
     FOSSIL_TEST_REGISTER(cpp_asyncpp_fixture);
 } // end of tests
