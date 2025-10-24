@@ -75,7 +75,6 @@ int fossil_network_cluster_join(fossil_network_cluster_node_t *self,
 int fossil_network_cluster_broadcast(const void *buf, size_t len) {
     if (!buf || len == 0) return -1;
 
-    int broadcasted = 0;
     for (int i = 0; i < g_node_count; i++) {
         // Skip self and inactive nodes
         if (strcmp(g_nodes[i].node_id, g_self.node_id) == 0 || !g_nodes[i].is_active) continue;
