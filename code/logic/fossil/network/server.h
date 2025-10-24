@@ -21,35 +21,47 @@ extern "C"
 {
 #endif
 
-typedef struct {
-    fossil_network_socket_t listener;
-    void (*on_connect)(fossil_network_socket_t *client);
-    void (*on_recv)(fossil_network_socket_t *client, const void *data, size_t len);
-    void (*on_disconnect)(fossil_network_socket_t *client);
-    int running;
-} fossil_network_server_t;
-
-// *****************************************************************************
-// Function prototypes
-// *****************************************************************************
+/**
+ * @brief Create and start a listening server on the specified address and port.
+ *
+ * @param proto_id Protocol name (e.g., "tcp", "udp", "http").
+ * @param address  Local address to bind to (e.g., "127.0.0.1" or "0.0.0.0").
+ * @param port     Port number to listen on.
+ *
+ * @return 0 on success, or negative on error.
+ */
+int fossil_network_server_listen(const char *proto_id, const char *address, uint16_t port);
 
 /**
- * @brief Start the server and begin listening on the specified address and port.
+ * @brief Accept an incoming client connection.
  *
- * @param server Pointer to the server structure.
- * @param address Address to bind the server to.
- * @param port Port number to listen on.
- * @return 0 on success, non-zero on failure.
+ * Only valid for connection-oriented protocols such as TCP.
+ *
+ * @param server_id Unique ID string for the active server.
+ *
+ * @return Client index (>=0) on success, negative on failure.
  */
-int fossil_network_server_start(fossil_network_server_t *server, const char *address, uint16_t port);
+int fossil_network_server_accept(const char *server_id);
 
 /**
- * @brief Stop the server and close all connections.
+ * @brief Broadcast data to all connected clients.
  *
- * @param server Pointer to the server structure.
- * @return 0 on success, non-zero on failure.
+ * @param server_id Unique ID string for the active server.
+ * @param data      Pointer to buffer containing data to send.
+ * @param len       Length of the buffer in bytes.
+ *
+ * @return Number of clients successfully sent to, or negative on error.
  */
-int fossil_network_server_stop(fossil_network_server_t *server);
+int fossil_network_server_broadcast(const char *server_id, const void *data, size_t len);
+
+/**
+ * @brief Close a running server and all associated client connections.
+ *
+ * @param server_id Unique ID string for the active server.
+ *
+ * @return 0 on success, negative on failure.
+ */
+int fossil_network_server_close(const char *server_id);
 
 #ifdef __cplusplus
 }
@@ -60,47 +72,87 @@ namespace fossil {
 
         /**
          * @class Server
-         * @brief C++ wrapper for fossil_network_server_t and related functions.
+         * @brief C++ RAII wrapper for Fossil network server functions.
          *
          * This class provides a high-level interface for managing a network server.
-         * It wraps the underlying C functions for fossil_network_server_t, allowing
-         * users to start and stop the server using C++ methods.
+         * It wraps the underlying C functions for fossil_network_server_listen,
+         * fossil_network_server_accept, fossil_network_server_broadcast, and
+         * fossil_network_server_close, allowing users to start, accept, broadcast,
+         * and stop the server using C++ methods.
          */
         class Server {
         public:
             /**
-             * @brief Handle to the underlying C network server structure.
-             *
-             * This member holds the state and socket information for the server.
+             * @brief Unique server identifier used by the C API.
              */
-            fossil_network_server_t handle;
+            std::string server_id;
 
             /**
-             * @brief Default constructor.
+             * @brief Constructor.
              *
-             * Initializes the server handle and sets the running status to stopped.
+             * Does not start the server; call listen() to start.
              */
-            Server() { handle.running = 0; }
+            Server() = default;
 
             /**
-             * @brief Starts the server and begins listening on the specified address and port.
+             * @brief Destructor.
              *
-             * @param address Address to bind the server to.
-             * @param port Port number to listen on.
-             * @return 0 on success, non-zero on failure.
+             * Ensures the server is closed if still running.
              */
-            int start(const char *address, uint16_t port) {
-            return fossil_network_server_start(&handle, address, port);
+            ~Server() {
+                if (!server_id.empty()) {
+                    fossil_network_server_close(server_id.c_str());
+                }
             }
 
             /**
-             * @brief Stops the server and closes all connections.
+             * @brief Start listening on the specified protocol, address, and port.
              *
-             * @return 0 on success, non-zero on failure.
+             * @param proto_id Protocol name (e.g., "tcp").
+             * @param address  Address to bind to.
+             * @param port     Port number.
+             * @return 0 on success, negative on error.
              */
-            int stop() {
-            return fossil_network_server_stop(&handle);
+            int listen(const char *proto_id, const char *address, uint16_t port) {
+                // Generate a unique server_id (for example, based on address/port)
+                server_id = std::string(proto_id) + ":" + address + ":" + std::to_string(port);
+                return fossil_network_server_listen(proto_id, address, port);
             }
+
+            /**
+             * @brief Accept an incoming client connection.
+             *
+             * @return Client index (>=0) on success, negative on failure.
+             */
+            int accept() {
+                if (server_id.empty()) return -1;
+                return fossil_network_server_accept(server_id.c_str());
+            }
+
+            /**
+             * @brief Broadcast data to all connected clients.
+             *
+             * @param data Pointer to buffer containing data to send.
+             * @param len  Length of the buffer in bytes.
+             * @return Number of clients successfully sent to, or negative on error.
+             */
+            int broadcast(const void *data, size_t len) {
+                if (server_id.empty()) return -1;
+                return fossil_network_server_broadcast(server_id.c_str(), data, len);
+            }
+
+            /**
+             * @brief Close the server and all associated client connections.
+             *
+             * @return 0 on success, negative on failure.
+             */
+            int close() {
+                if (server_id.empty()) return 0;
+                int result = fossil_network_server_close(server_id.c_str());
+                server_id.clear();
+                return result;
+            }
+
         };
 
     } // namespace network

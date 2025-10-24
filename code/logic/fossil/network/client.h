@@ -21,60 +21,47 @@ extern "C"
 {
 #endif
 
-typedef struct {
-    fossil_network_socket_t socket;
-    int connected;
-} fossil_network_client_t;
-
 // *****************************************************************************
 // Function prototypes
 // *****************************************************************************
 
 /**
- * @brief Connect the client to the specified host and port.
+ * @brief Connect the client to the specified host and port using a protocol identifier.
  *
- * @param client Pointer to the client structure.
+ * @param proto_id Protocol identifier string.
  * @param host Hostname or IP address to connect to.
  * @param port Port number to connect to.
  * @return 0 on success, non-zero on failure.
  */
-int fossil_network_client_connect(fossil_network_client_t *client, const char *host, uint16_t port);
+int fossil_network_client_connect(const char *proto_id, const char *host, uint16_t port);
 
 /**
- * @brief Send data through the client socket.
+ * @brief Send data through the client socket using a client identifier.
  *
- * @param client Pointer to the client structure.
- * @param data Pointer to the data to send.
+ * @param client_id Client identifier string.
+ * @param buf Pointer to the data to send.
  * @param len Length of the data to send.
  * @return Number of bytes sent on success, -1 on failure.
  */
-ssize_t fossil_network_client_send(fossil_network_client_t *client, const void *data, size_t len);
+int fossil_network_client_send(const char *client_id, const void *buf, size_t len);
 
 /**
- * @brief Receive data from the client socket.
+ * @brief Receive data from the client socket using a client identifier.
  *
- * @param client Pointer to the client structure.
- * @param data Pointer to the buffer to receive data.
+ * @param client_id Client identifier string.
+ * @param buf Pointer to the buffer to receive data.
  * @param len Length of the buffer.
  * @return Number of bytes received on success, -1 on failure.
  */
-ssize_t fossil_network_client_recv(fossil_network_client_t *client, void *data, size_t len);
+int fossil_network_client_recv(const char *client_id, void *buf, size_t len);
 
 /**
- * @brief Reconnect the client to the last known host and port.
+ * @brief Disconnect the client and release resources using a client identifier.
  *
- * @param client Pointer to the client structure.
+ * @param client_id Client identifier string.
  * @return 0 on success, non-zero on failure.
  */
-int fossil_network_client_reconnect(fossil_network_client_t *client);
-
-/**
- * @brief Close the client connection and release resources.
- *
- * @param client Pointer to the client structure.
- * @return 0 on success, non-zero on failure.
- */
-int fossil_network_client_close(fossil_network_client_t *client);
+int fossil_network_client_disconnect(const char *client_id);
 
 #ifdef __cplusplus
 }
@@ -85,79 +72,70 @@ namespace fossil {
 
         /**
          * @class Client
-         * @brief C++ wrapper for fossil_network_client_t and related functions.
+         * @brief C++ wrapper for fossil_network_client_* functions using protocol and client identifiers.
          *
          * This class provides a high-level interface for managing a network client.
-         * It wraps the underlying C functions for fossil_network_client_t, allowing
-         * users to connect to a remote host, send and receive data, reconnect, and
-         * close the connection using C++ methods.
+         * It wraps the underlying C functions, allowing users to connect, send, receive,
+         * and disconnect using C++ methods and string identifiers.
          */
         class Client {
         public:
-            /**
-             * @brief Handle to the underlying C network client structure.
-             *
-             * This member holds the state and socket information for the client.
-             */
-            fossil_network_client_t handle;
+            std::string proto_id;
+            std::string client_id;
+            bool connected;
 
             /**
              * @brief Default constructor.
-             *
-             * Initializes the client handle and sets the connection status to disconnected.
              */
-            Client() { handle.connected = 0; }
+            Client(const std::string& protocol, const std::string& client)
+            : proto_id(protocol), client_id(client), connected(false) {}
 
             /**
-             * @brief Connects the client to the specified host and port.
+             * @brief Connects the client to the specified host and port using protocol identifier.
              *
              * @param host Hostname or IP address to connect to.
              * @param port Port number to connect to.
              * @return 0 on success, non-zero on failure.
              */
             int connect(const char *host, uint16_t port) {
-            return fossil_network_client_connect(&handle, host, port);
+                int res = fossil_network_client_connect(proto_id.c_str(), host, port);
+                connected = (res == 0);
+                return res;
             }
 
             /**
-             * @brief Sends data through the client socket.
+             * @brief Sends data through the client socket using client identifier.
              *
              * @param data Pointer to the data to send.
              * @param len Length of the data to send.
              * @return Number of bytes sent on success, -1 on failure.
              */
-            ssize_t send(const void *data, size_t len) {
-            return fossil_network_client_send(&handle, data, len);
+            int send(const void *data, size_t len) {
+                return fossil_network_client_send(client_id.c_str(), data, len);
             }
 
             /**
-             * @brief Receives data from the client socket.
+             * @brief Receives data from the client socket using client identifier.
              *
              * @param data Pointer to the buffer to receive data.
              * @param len Length of the buffer.
              * @return Number of bytes received on success, -1 on failure.
              */
-            ssize_t recv(void *data, size_t len) {
-            return fossil_network_client_recv(&handle, data, len);
+            int recv(void *data, size_t len) {
+                return fossil_network_client_recv(client_id.c_str(), data, len);
             }
 
             /**
-             * @brief Reconnects the client to the last known host and port.
+             * @brief Disconnects the client and releases resources using client identifier.
              *
              * @return 0 on success, non-zero on failure.
              */
-            int reconnect() {
-            return fossil_network_client_reconnect(&handle);
+            int disconnect() {
+                int res = fossil_network_client_disconnect(client_id.c_str());
+                connected = false;
+                return res;
             }
 
-            /**
-             * @brief Closes the client connection and releases resources.
-             *
-             * @return 0 on success, non-zero on failure.
-             */
-            int close() {
-            return fossil_network_client_close(&handle);
-            }
         };
 
     } // namespace network

@@ -15,7 +15,6 @@
 #define FOSSIL_NETWORK_FRAMEWORK_H
 
 #include "cluster.h"
-#include "packet.h"
 #include "client.h"
 #include "server.h"
 #include "socket.h"
