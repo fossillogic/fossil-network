@@ -20,9 +20,7 @@ endif
 fossil_network_lib = library(
     'fossil_network',
     files(
-        'socket.c', 'udp.c', 'tcp.c', 'http.c',
-        'dns.c', 'cluster.c', 'async.c',
-        'echo.c', 'ws.c', 'tls.c', 'protocol.c'
+        'socket.c', 'echo.c'
     ),
     install: true,
     dependencies: [cc.find_library('m', required: false),
