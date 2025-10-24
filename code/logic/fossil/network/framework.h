@@ -14,8 +14,6 @@
 #ifndef FOSSIL_NETWORK_FRAMEWORK_H
 #define FOSSIL_NETWORK_FRAMEWORK_H
 
-#include "client.h"
-#include "server.h"
 #include "socket.h"
 #include "echo.h"
 

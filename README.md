@@ -1,32 +1,41 @@
 # **Fossil Network by Fossil Logic**
 
-**Fossil Network** is a lightweight, cross-platform sockets library written in pure C with zero external dependencies. Focused on efficient socket management, it enables high-performance applications and embedded systems to communicate over TCP, UDP, and multicast. With abstractions for non-blocking I/O and event-driven networking, Fossil Network simplifies building reliable, socket-based software while maintaining a minimal footprint.
+**Fossil Network** is a portable, cross-platform sockets library in pure C, designed for efficient and reliable network communication with zero external dependencies. It provides unified type definitions and abstractions for Windows, macOS, BSD, and Linux, ensuring seamless integration and consistent behavior across platforms.
 
 ### Key Features
-- **Cross-Platform Support**  
-  Works seamlessly on Windows, macOS, Linux, and embedded platforms.
 
-- **Zero External Dependencies**  
-  Pure C implementation for maximum portability, auditability, and ease of integration.
+- **Portable Type Definitions**  
+  Handles platform-specific differences (Windows, macOS/BSD, Linux) for socket types, error codes, and system headers.
 
-- **Multi-Protocol Support**  
-  TCP, UDP, and multicast connections for versatile networking needs.
+- **Unified Socket API**  
+  Core structures (`fossil_network_socket_t`, `fossil_network_pollfd_t`) abstract file descriptors and socket operations for all supported platforms.
 
-- **Non-Blocking & Event-Driven I/O**  
-  Supports timeouts, event callbacks, and efficient handling of multiple connections.
+- **Comprehensive Protocol Support**  
+  Built-in enumeration for TCP, UDP, raw sockets, and common application protocols (HTTP, HTTPS, FTP, SSH, DNS, etc.).
 
-- **Lightweight and Efficient**  
-  Optimized for minimal resource usage in embedded or resource-constrained environments.
+- **Convenient Socket Operations**  
+  Functions for socket creation, binding, listening, accepting, connecting, sending, receiving, polling, and shutdown.
 
-- **Modular Design**  
-  Easily integrated into existing projects or extended for custom protocols.
+- **Cross-Platform Error Handling**  
+  Normalized error codes and translation helpers for consistent error reporting regardless of OS.
 
-## ***Prerequisites***
+- **Timeouts and Non-Blocking I/O**  
+  Easily set timeouts and toggle blocking modes for sockets, with helpers for event-driven and asynchronous networking.
+
+- **Address and Option Utilities**  
+  Helpers for hostname resolution, address retrieval, and socket option management.
+
+- **Datagram Support**  
+  Send and receive UDP/raw datagrams with address/port helpers.
+
+- **Minimal Footprint**  
+  No external dependencies; suitable for embedded, desktop, and server environments.
+
+**Fossil Network** simplifies socket programming by abstracting platform quirks and providing a consistent, modern C API for building robust networked applications.
 
 To get started, ensure you have the following installed:
 
 - **Meson Build System**: If you don’t have Meson `1.8.0` or newer installed, follow the installation instructions on the official [Meson website](https://mesonbuild.com/Getting-meson.html).
-- **Conan Package Manager**: If you prefer using Conan, ensure it is installed by following the instructions on the official [Conan website](https://docs.conan.io/en/latest/installation.html).
 
 ### Adding Dependency
 
@@ -41,7 +50,7 @@ Add the `fossil-network.wrap` file in your `subprojects` directory and include t
 ```ini
 [wrap-git]
 url = https://github.com/fossillogic/fossil-network.git
-revision = v0.1.0
+revision = v0.1.1
 
 [provide]
 dependency_names = fossil-network
