@@ -76,18 +76,14 @@ int fossil_network_cluster_broadcast(const void *buf, size_t len) {
     if (!buf || len == 0) return -1;
 
     int success_count = 0;
-    int fail_count = 0;
 
     for (int i = 0; i < g_node_count; i++) {
-        // Skip self and inactive nodes
         if (strcmp(g_nodes[i].node_id, g_self.node_id) == 0 || !g_nodes[i].is_active)
             continue;
 
         fossil_network_socket_t sock;
-        if (fossil_network_socket_create(&sock, AF_INET, FOSSIL_PROTO_TCP) != 0) {
-            fail_count++;
+        if (fossil_network_socket_create(&sock, AF_INET, FOSSIL_PROTO_TCP) != 0)
             continue;
-        }
 
         struct sockaddr_in addr;
         memset(&addr, 0, sizeof(addr));
@@ -96,33 +92,24 @@ int fossil_network_cluster_broadcast(const void *buf, size_t len) {
 
         if (inet_pton(AF_INET, g_nodes[i].address, &addr.sin_addr) <= 0) {
             fossil_network_socket_close(&sock);
-            fail_count++;
             continue;
         }
 
         ssize_t sent = sendto(sock.fd, (const char*)buf, (int)len, 0,
                               (struct sockaddr*)&addr, sizeof(addr));
 
-        if (sent < 0) {
-            perror("fossil_network_cluster_broadcast: sendto failed");
-            fail_count++;
-        } else {
+        if (sent >= 0)
             success_count++;
-        }
+        else
+            perror("fossil_network_cluster_broadcast: sendto failed");
 
         fossil_network_socket_close(&sock);
     }
 
-    // No peers to send to
     if (g_node_count <= 1)
         return 0;
 
-    // If at least one node succeeded, return success
-    if (success_count > 0)
-        return 0;
-
-    // All sends failed
-    return -1;
+    return (success_count > 0) ? 0 : -1;
 }
 
 int fossil_network_cluster_leave(fossil_network_cluster_node_t *self) {
