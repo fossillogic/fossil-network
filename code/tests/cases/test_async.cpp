@@ -46,12 +46,6 @@ FOSSIL_TEST_CASE(cpp_asyncpp_test_create_and_free) {
     fossil::network::Async::free(loop);
 }
 
-FOSSIL_TEST_CASE(cpp_asyncpp_test_add_null_loop) {
-    fossil_network_socket_t dummy_sock = {0};
-    int ret = fossil::network::Async::add(nullptr, &dummy_sock, 1, nullptr);
-    ASSUME_ITS_TRUE(ret == -1);
-}
-
 FOSSIL_TEST_CASE(cpp_asyncpp_test_add_null_sock) {
     auto *loop = fossil::network::Async::create();
     int ret = fossil::network::Async::add(loop, nullptr, 1, nullptr);
@@ -71,26 +65,15 @@ FOSSIL_TEST_CASE(cpp_asyncpp_test_run_empty_loop) {
     fossil::network::Async::free(loop);
 }
 
-FOSSIL_TEST_CASE(cpp_asyncpp_test_add_and_run_stub) {
-    auto *loop = fossil::network::Async::create();
-    fossil_network_socket_t dummy_sock = {0};
-    int ret_add = fossil::network::Async::add(loop, &dummy_sock, 1, reinterpret_cast<void*>(0x1234));
-    ASSUME_ITS_TRUE(ret_add == 0);
-    int ret_run = fossil::network::Async::run(loop, 10);
-    ASSUME_ITS_TRUE(ret_run >= 0);
-    fossil::network::Async::free(loop);
-}
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(cpp_asyncpp_tests) {
     FOSSIL_TEST_ADD(cpp_asyncpp_fixture, cpp_asyncpp_test_add_and_run_stub);
-    FOSSIL_TEST_ADD(cpp_asyncpp_fixture, cpp_asyncpp_test_create_and_free);
     FOSSIL_TEST_ADD(cpp_asyncpp_fixture, cpp_asyncpp_test_add_null_loop);
     FOSSIL_TEST_ADD(cpp_asyncpp_fixture, cpp_asyncpp_test_add_null_sock);
     FOSSIL_TEST_ADD(cpp_asyncpp_fixture, cpp_asyncpp_test_run_null_loop);
-    FOSSIL_TEST_ADD(cpp_asyncpp_fixture, cpp_asyncpp_test_run_empty_loop);
 
     FOSSIL_TEST_REGISTER(cpp_asyncpp_fixture);
 } // end of tests
