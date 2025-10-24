@@ -65,6 +65,8 @@ int fossil_network_server_close(const char *server_id);
 
 #ifdef __cplusplus
 }
+#include <string>
+#include <cstring>
 
 namespace fossil {
 
@@ -74,85 +76,111 @@ namespace fossil {
          * @class Server
          * @brief C++ RAII wrapper for Fossil network server functions.
          *
-         * This class provides a high-level interface for managing a network server.
-         * It wraps the underlying C functions for fossil_network_server_listen,
-         * fossil_network_server_accept, fossil_network_server_broadcast, and
-         * fossil_network_server_close, allowing users to start, accept, broadcast,
-         * and stop the server using C++ methods.
+         * This class provides a C++ interface for managing a Fossil network server.
+         * It wraps the C API functions with RAII semantics, ensuring that resources
+         * are properly released when the object is destroyed.
          */
         class Server {
         public:
             /**
-             * @brief Unique server identifier used by the C API.
+             * @brief Unique identifier for the active server instance.
+             *
+             * This string is constructed from the protocol, address, and port,
+             * and is used to reference the server in C API calls.
              */
             std::string server_id;
 
             /**
-             * @brief Constructor.
+             * @brief Default constructor.
              *
-             * Does not start the server; call listen() to start.
+             * Initializes an empty server instance. No server is started.
              */
             Server() = default;
 
             /**
              * @brief Destructor.
              *
-             * Ensures the server is closed if still running.
+             * Automatically closes the server and releases all associated resources
+             * if the server is running.
              */
             ~Server() {
-                if (!server_id.empty()) {
-                    fossil_network_server_close(server_id.c_str());
-                }
+            if (!server_id.empty()) {
+                fossil_network_server_close(server_id.c_str());
+            }
             }
 
             /**
-             * @brief Start listening on the specified protocol, address, and port.
+             * @brief Start a listening server.
              *
-             * @param proto_id Protocol name (e.g., "tcp").
-             * @param address  Address to bind to.
-             * @param port     Port number.
+             * Attempts to create and start a server using the specified protocol,
+             * address, and port. Only known protocols ("tcp", "udp", "http") are allowed.
+             *
+             * @param proto_id Protocol name (e.g., "tcp", "udp", "http").
+             * @param address  Local address to bind to (e.g., "127.0.0.1").
+             * @param port     Port number to listen on.
              * @return 0 on success, negative on error.
              */
             int listen(const char *proto_id, const char *address, uint16_t port) {
-                // Generate a unique server_id (for example, based on address/port)
-                server_id = std::string(proto_id) + ":" + address + ":" + std::to_string(port);
-                return fossil_network_server_listen(proto_id, address, port);
+            // Validate parameters
+            if (!proto_id || !address || port == 0) {
+                return -1;
+            }
+            // Only allow known protocols
+            if (std::strcmp(proto_id, "tcp") != 0 && std::strcmp(proto_id, "udp") != 0 && std::strcmp(proto_id, "http") != 0) {
+                return -1;
+            }
+            // Construct server ID from protocol, address, and port
+            server_id = std::string(proto_id) + ":" + address + ":" + std::to_string(port);
+            int rc = fossil_network_server_listen(proto_id, address, port);
+            if (rc != 0) server_id.clear();
+            return rc;
             }
 
             /**
              * @brief Accept an incoming client connection.
              *
+             * Only valid for connection-oriented protocols such as TCP.
+             * Returns the client index on success, or negative on failure.
+             *
              * @return Client index (>=0) on success, negative on failure.
              */
             int accept() {
-                if (server_id.empty()) return -1;
-                return fossil_network_server_accept(server_id.c_str());
+            if (server_id.empty()) return -1;
+            int rc = fossil_network_server_accept(server_id.c_str());
+            if (rc < 0) return -1;
+            return rc;
             }
 
             /**
              * @brief Broadcast data to all connected clients.
+             *
+             * Sends the specified buffer to all clients connected to the server.
              *
              * @param data Pointer to buffer containing data to send.
              * @param len  Length of the buffer in bytes.
              * @return Number of clients successfully sent to, or negative on error.
              */
             int broadcast(const void *data, size_t len) {
-                if (server_id.empty()) return -1;
-                return fossil_network_server_broadcast(server_id.c_str(), data, len);
+            if (server_id.empty() || !data || len == 0) return -1;
+            int rc = fossil_network_server_broadcast(server_id.c_str(), data, len);
+            if (rc < 0) return -1;
+            return rc;
             }
 
             /**
-             * @brief Close the server and all associated client connections.
+             * @brief Close the running server and all associated client connections.
+             *
+             * Releases all resources and resets the server state.
              *
              * @return 0 on success, negative on failure.
              */
             int close() {
-                if (server_id.empty()) return 0;
-                int result = fossil_network_server_close(server_id.c_str());
-                server_id.clear();
-                return result;
+            if (server_id.empty()) return 0;
+            int rc = fossil_network_server_close(server_id.c_str());
+            server_id.clear();
+            if (rc < 0) return rc;
+            return 0;
             }
-
         };
 
     } // namespace network

@@ -67,6 +67,10 @@ int fossil_network_client_disconnect(const char *client_id);
 
 #ifdef __cplusplus
 }
+#include <vector>
+#include <string>
+#include <cstddef>
+#include <cstdint>
 
 namespace fossil {
 
@@ -86,53 +90,36 @@ namespace fossil {
             std::string client_id;
             bool connected;
 
-            /**
-             * @brief Default constructor.
-             */
             Client(const std::string& protocol, const std::string& client)
             : proto_id(protocol), client_id(client), connected(false) {}
 
-            /**
-             * @brief Connects the client to the specified host and port using protocol identifier.
-             *
-             * @param host Hostname or IP address to connect to.
-             * @param port Port number to connect to.
-             * @return 0 on success, non-zero on failure.
-             */
             int connect(const char *host, uint16_t port) {
+                // Validate protocol and host
+                if (proto_id.empty() || !host || std::string(host).empty())
+                    return -1;
                 int res = fossil_network_client_connect(proto_id.c_str(), host, port);
                 connected = (res == 0);
                 return res;
             }
 
-            /**
-             * @brief Sends data through the client socket using client identifier.
-             *
-             * @param data Pointer to the data to send.
-             * @param len Length of the data to send.
-             * @return Number of bytes sent on success, -1 on failure.
-             */
             int send(const void *data, size_t len) {
+                // Validate client_id, data, and length, and connection state
+                if (client_id.empty() || !data || len == 0 || !connected)
+                    return -1;
                 return fossil_network_client_send(client_id.c_str(), data, len);
             }
 
-            /**
-             * @brief Receives data from the client socket using client identifier.
-             *
-             * @param data Pointer to the buffer to receive data.
-             * @param len Length of the buffer.
-             * @return Number of bytes received on success, -1 on failure.
-             */
             int recv(void *data, size_t len) {
+                // Validate client_id, data, and length, and connection state
+                if (client_id.empty() || !data || len == 0 || !connected)
+                    return -1;
                 return fossil_network_client_recv(client_id.c_str(), data, len);
             }
 
-            /**
-             * @brief Disconnects the client and releases resources using client identifier.
-             *
-             * @return 0 on success, non-zero on failure.
-             */
             int disconnect() {
+                // Validate client_id and connection state
+                if (client_id.empty() || !connected)
+                    return -1;
                 int res = fossil_network_client_disconnect(client_id.c_str());
                 connected = false;
                 return res;
