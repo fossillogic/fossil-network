@@ -1,6 +1,6 @@
 [wrap-git]
 url = https://github.com/fossillogic/fossil-test.git
-revision = v1.3.4
+revision = v1.4.0
 
 [provide]
 dependency_names = fossil-test
