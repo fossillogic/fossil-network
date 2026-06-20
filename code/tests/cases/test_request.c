@@ -190,20 +190,20 @@ FOSSIL_TEST(c_request_test_response_free) {
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(c_request_tests) {
-    FOSSIL_TEST_ADD(c_request_fixture, c_request_test_request_init);
-    FOSSIL_TEST_ADD(c_request_fixture, c_request_test_request_init_invalid_method);
-    FOSSIL_TEST_ADD(c_request_fixture, c_request_test_request_init_null_params);
-    FOSSIL_TEST_ADD(c_request_fixture, c_request_test_request_set_header);
-    FOSSIL_TEST_ADD(c_request_fixture, c_request_test_request_set_header_update);
-    FOSSIL_TEST_ADD(c_request_fixture, c_request_test_request_set_header_multiple);
-    FOSSIL_TEST_ADD(c_request_fixture, c_request_test_request_set_body_json);
-    FOSSIL_TEST_ADD(c_request_fixture, c_request_test_request_set_body_xml);
-    FOSSIL_TEST_ADD(c_request_fixture, c_request_test_request_set_body_invalid_type);
-    FOSSIL_TEST_ADD(c_request_fixture, c_request_test_request_set_body_octet_stream);
-    FOSSIL_TEST_ADD(c_request_fixture, c_request_test_response_get_header);
-    FOSSIL_TEST_ADD(c_request_fixture, c_request_test_response_get_header_not_found);
-    FOSSIL_TEST_ADD(c_request_fixture, c_request_test_request_free);
-    FOSSIL_TEST_ADD(c_request_fixture, c_request_test_response_free);
+    FOSSIL_ADD_TEST(c_request_fixture, c_request_test_request_init);
+    FOSSIL_ADD_TEST(c_request_fixture, c_request_test_request_init_invalid_method);
+    FOSSIL_ADD_TEST(c_request_fixture, c_request_test_request_init_null_params);
+    FOSSIL_ADD_TEST(c_request_fixture, c_request_test_request_set_header);
+    FOSSIL_ADD_TEST(c_request_fixture, c_request_test_request_set_header_update);
+    FOSSIL_ADD_TEST(c_request_fixture, c_request_test_request_set_header_multiple);
+    FOSSIL_ADD_TEST(c_request_fixture, c_request_test_request_set_body_json);
+    FOSSIL_ADD_TEST(c_request_fixture, c_request_test_request_set_body_xml);
+    FOSSIL_ADD_TEST(c_request_fixture, c_request_test_request_set_body_invalid_type);
+    FOSSIL_ADD_TEST(c_request_fixture, c_request_test_request_set_body_octet_stream);
+    FOSSIL_ADD_TEST(c_request_fixture, c_request_test_response_get_header);
+    FOSSIL_ADD_TEST(c_request_fixture, c_request_test_response_get_header_not_found);
+    FOSSIL_ADD_TEST(c_request_fixture, c_request_test_request_free);
+    FOSSIL_ADD_TEST(c_request_fixture, c_request_test_response_free);
 
-    FOSSIL_TEST_REGISTER(c_request_fixture);
+    FOSSIL_ADD_SUITE(c_request_fixture);
 } // end of tests

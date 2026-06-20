@@ -222,11 +222,11 @@ FOSSIL_TEST(cpp_client_test_set_blocking_and_error) {
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(cpp_client_tests) {
-    FOSSIL_TEST_ADD(cpp_client_fixture, cpp_client_test_create_and_destroy);
-    FOSSIL_TEST_ADD(cpp_client_fixture, cpp_client_test_connect_and_disconnect_loopback);
-    FOSSIL_TEST_ADD(cpp_client_fixture, cpp_client_test_send_and_receive);
-    FOSSIL_TEST_ADD(cpp_client_fixture, cpp_client_test_get_addresses);
-    FOSSIL_TEST_ADD(cpp_client_fixture, cpp_client_test_set_blocking_and_error);
+    FOSSIL_ADD_TEST(cpp_client_fixture, cpp_client_test_create_and_destroy);
+    FOSSIL_ADD_TEST(cpp_client_fixture, cpp_client_test_connect_and_disconnect_loopback);
+    FOSSIL_ADD_TEST(cpp_client_fixture, cpp_client_test_send_and_receive);
+    FOSSIL_ADD_TEST(cpp_client_fixture, cpp_client_test_get_addresses);
+    FOSSIL_ADD_TEST(cpp_client_fixture, cpp_client_test_set_blocking_and_error);
 
-    FOSSIL_TEST_REGISTER(cpp_client_fixture);
+    FOSSIL_ADD_SUITE(cpp_client_fixture);
 } // end of tests

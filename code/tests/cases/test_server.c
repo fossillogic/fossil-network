@@ -101,11 +101,11 @@ FOSSIL_TEST(c_server_test_server_accept_fail) {
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(c_server_tests) {
-    FOSSIL_TEST_ADD(c_server_fixture, c_server_test_server_create_and_destroy);
-    FOSSIL_TEST_ADD(c_server_fixture, c_server_test_server_create_invalid_params);
-    FOSSIL_TEST_ADD(c_server_fixture, c_server_test_server_listen_and_get_address);
-    FOSSIL_TEST_ADD(c_server_fixture, c_server_test_server_set_blocking);
-    FOSSIL_TEST_ADD(c_server_fixture, c_server_test_server_accept_fail);
+    FOSSIL_ADD_TEST(c_server_fixture, c_server_test_server_create_and_destroy);
+    FOSSIL_ADD_TEST(c_server_fixture, c_server_test_server_create_invalid_params);
+    FOSSIL_ADD_TEST(c_server_fixture, c_server_test_server_listen_and_get_address);
+    FOSSIL_ADD_TEST(c_server_fixture, c_server_test_server_set_blocking);
+    FOSSIL_ADD_TEST(c_server_fixture, c_server_test_server_accept_fail);
 
-    FOSSIL_TEST_REGISTER(c_server_fixture);
+    FOSSIL_ADD_SUITE(c_server_fixture);
 } // end of tests

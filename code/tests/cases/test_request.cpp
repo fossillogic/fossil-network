@@ -202,23 +202,23 @@ FOSSIL_TEST(cpp_request_test_response_free) {
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(cpp_request_tests) {
-    FOSSIL_TEST_ADD(cpp_request_fixture, cpp_request_test_request_init);
-    FOSSIL_TEST_ADD(cpp_request_fixture, cpp_request_test_request_static_get);
-    FOSSIL_TEST_ADD(cpp_request_fixture, cpp_request_test_request_static_post);
-    FOSSIL_TEST_ADD(cpp_request_fixture, cpp_request_test_request_static_put);
-    FOSSIL_TEST_ADD(cpp_request_fixture, cpp_request_test_request_static_del);
-    FOSSIL_TEST_ADD(cpp_request_fixture, cpp_request_test_request_static_patch);
-    FOSSIL_TEST_ADD(cpp_request_fixture, cpp_request_test_request_static_head);
-    FOSSIL_TEST_ADD(cpp_request_fixture, cpp_request_test_request_set_header);
-    FOSSIL_TEST_ADD(cpp_request_fixture, cpp_request_test_request_set_header_update);
-    FOSSIL_TEST_ADD(cpp_request_fixture, cpp_request_test_request_set_header_multiple);
-    FOSSIL_TEST_ADD(cpp_request_fixture, cpp_request_test_request_set_body_json);
-    FOSSIL_TEST_ADD(cpp_request_fixture, cpp_request_test_request_set_body_xml);
-    FOSSIL_TEST_ADD(cpp_request_fixture, cpp_request_test_request_set_body_invalid_type);
-    FOSSIL_TEST_ADD(cpp_request_fixture, cpp_request_test_request_set_body_octet_stream);
-    FOSSIL_TEST_ADD(cpp_request_fixture, cpp_request_test_response_get_header);
-    FOSSIL_TEST_ADD(cpp_request_fixture, cpp_request_test_response_get_header_not_found);
-    FOSSIL_TEST_ADD(cpp_request_fixture, cpp_request_test_response_free);
+    FOSSIL_ADD_TEST(cpp_request_fixture, cpp_request_test_request_init);
+    FOSSIL_ADD_TEST(cpp_request_fixture, cpp_request_test_request_static_get);
+    FOSSIL_ADD_TEST(cpp_request_fixture, cpp_request_test_request_static_post);
+    FOSSIL_ADD_TEST(cpp_request_fixture, cpp_request_test_request_static_put);
+    FOSSIL_ADD_TEST(cpp_request_fixture, cpp_request_test_request_static_del);
+    FOSSIL_ADD_TEST(cpp_request_fixture, cpp_request_test_request_static_patch);
+    FOSSIL_ADD_TEST(cpp_request_fixture, cpp_request_test_request_static_head);
+    FOSSIL_ADD_TEST(cpp_request_fixture, cpp_request_test_request_set_header);
+    FOSSIL_ADD_TEST(cpp_request_fixture, cpp_request_test_request_set_header_update);
+    FOSSIL_ADD_TEST(cpp_request_fixture, cpp_request_test_request_set_header_multiple);
+    FOSSIL_ADD_TEST(cpp_request_fixture, cpp_request_test_request_set_body_json);
+    FOSSIL_ADD_TEST(cpp_request_fixture, cpp_request_test_request_set_body_xml);
+    FOSSIL_ADD_TEST(cpp_request_fixture, cpp_request_test_request_set_body_invalid_type);
+    FOSSIL_ADD_TEST(cpp_request_fixture, cpp_request_test_request_set_body_octet_stream);
+    FOSSIL_ADD_TEST(cpp_request_fixture, cpp_request_test_response_get_header);
+    FOSSIL_ADD_TEST(cpp_request_fixture, cpp_request_test_response_get_header_not_found);
+    FOSSIL_ADD_TEST(cpp_request_fixture, cpp_request_test_response_free);
 
-    FOSSIL_TEST_REGISTER(cpp_request_fixture);
+    FOSSIL_ADD_SUITE(cpp_request_fixture);
 } // end of tests
