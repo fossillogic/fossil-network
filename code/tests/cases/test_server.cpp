@@ -17,13 +17,13 @@
  * under the License.
  *
  * Author: Michael Gene Brockus (Dreamer)
- * Date: 04/05/2014
+ * Date: 04/05/2013
  *
- * Copyright (C) 2014-2025 Fossil Logic. All rights reserved.
+ * Copyright (C) 2013-Current Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
 #include "fossil/network/framework.h"
-#include <fossil/pizza/framework.h>
+#include <fossil/maip/framework.h>
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Utilities
@@ -100,11 +100,11 @@ FOSSIL_TEST(cpp_server_test_server_accept_fail) {
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(cpp_server_tests) {
-    FOSSIL_TEST_ADD(cpp_server_fixture, cpp_server_test_server_create_and_destroy);
-    FOSSIL_TEST_ADD(cpp_server_fixture, cpp_server_test_server_create_invalid_params);
-    FOSSIL_TEST_ADD(cpp_server_fixture, cpp_server_test_server_listen_and_get_address);
-    FOSSIL_TEST_ADD(cpp_server_fixture, cpp_server_test_server_set_blocking);
-    FOSSIL_TEST_ADD(cpp_server_fixture, cpp_server_test_server_accept_fail);
+    FOSSIL_ADD_TEST(cpp_server_fixture, cpp_server_test_server_create_and_destroy);
+    FOSSIL_ADD_TEST(cpp_server_fixture, cpp_server_test_server_create_invalid_params);
+    FOSSIL_ADD_TEST(cpp_server_fixture, cpp_server_test_server_listen_and_get_address);
+    FOSSIL_ADD_TEST(cpp_server_fixture, cpp_server_test_server_set_blocking);
+    FOSSIL_ADD_TEST(cpp_server_fixture, cpp_server_test_server_accept_fail);
 
-    FOSSIL_TEST_REGISTER(cpp_server_fixture);
+    FOSSIL_ADD_SUITE(cpp_server_fixture);
 } // end of tests

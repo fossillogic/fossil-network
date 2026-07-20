@@ -17,13 +17,13 @@
  * under the License.
  *
  * Author: Michael Gene Brockus (Dreamer)
- * Date: 04/05/2014
+ * Date: 04/05/2013
  *
- * Copyright (C) 2014-2025 Fossil Logic. All rights reserved.
+ * Copyright (C) 2013-Current Fossil Logic. All rights reserved.
  * -----------------------------------------------------------------------------
  */
 #include "fossil/network/framework.h"
-#include <fossil/pizza/framework.h>
+#include <fossil/maip/framework.h>
 
 // * * * * * * * * * * * * * * * * * * * * * * * *
 // * Fossil Logic Test Utilities
@@ -160,14 +160,14 @@ FOSSIL_TEST(c_socket_test_socket_error_string) {
 // * Fossil Logic Test Pool
 // * * * * * * * * * * * * * * * * * * * * * * * *
 FOSSIL_TEST_GROUP(c_socket_tests) {
-    FOSSIL_TEST_ADD(c_socket_fixture, c_socket_test_socket_create_types_and_families);
-    FOSSIL_TEST_ADD(c_socket_fixture, c_socket_test_socket_blocking_option);
-    FOSSIL_TEST_ADD(c_socket_fixture, c_socket_test_socket_address_parse_and_to_string);
-    FOSSIL_TEST_ADD(c_socket_fixture, c_socket_test_socket_bind_and_listen_ipv6);
-    FOSSIL_TEST_ADD(c_socket_fixture, c_socket_test_socket_mac_get_and_to_string);
-    FOSSIL_TEST_ADD(c_socket_fixture, c_socket_test_socket_resolve_and_hostname);
-    FOSSIL_TEST_ADD(c_socket_fixture, c_socket_test_socket_poll_timeout);
-    FOSSIL_TEST_ADD(c_socket_fixture, c_socket_test_socket_error_string);
+    FOSSIL_ADD_TEST(c_socket_fixture, c_socket_test_socket_create_types_and_families);
+    FOSSIL_ADD_TEST(c_socket_fixture, c_socket_test_socket_blocking_option);
+    FOSSIL_ADD_TEST(c_socket_fixture, c_socket_test_socket_address_parse_and_to_string);
+    FOSSIL_ADD_TEST(c_socket_fixture, c_socket_test_socket_bind_and_listen_ipv6);
+    FOSSIL_ADD_TEST(c_socket_fixture, c_socket_test_socket_mac_get_and_to_string);
+    FOSSIL_ADD_TEST(c_socket_fixture, c_socket_test_socket_resolve_and_hostname);
+    FOSSIL_ADD_TEST(c_socket_fixture, c_socket_test_socket_poll_timeout);
+    FOSSIL_ADD_TEST(c_socket_fixture, c_socket_test_socket_error_string);
 
-    FOSSIL_TEST_REGISTER(c_socket_fixture);
+    FOSSIL_ADD_SUITE(c_socket_fixture);
 } // end of tests
